@@ -36,11 +36,6 @@
 	<td class="text-right">
 		<?php
 			if ($nest === 0) {
-				echo $this->Button->addLink(__d('rooms', 'Add new room'),
-						array('action' => 'add', $room['Space']['id'], $room['Room']['id']),
-						array('iconSize' => 'btn-xs')
-					);
-			} elseif ($nest === 1) {
 				echo $this->Button->addLink(__d('rooms', 'Add new subroom'),
 						array('action' => 'add', $room['Space']['id'], $room['Room']['id']),
 						array('iconSize' => 'btn-xs')

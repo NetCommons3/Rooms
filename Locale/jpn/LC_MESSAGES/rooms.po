@@ -50,6 +50,9 @@ msgstr "プラグイン選択"
 msgid "Room name"
 msgstr "ルーム名"
 
+msgid "Space name"
+msgstr "スペース"
+
 
 #
 # ルーム一覧画面

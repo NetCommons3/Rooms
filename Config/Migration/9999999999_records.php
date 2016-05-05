@@ -319,19 +319,19 @@ class Records extends NetCommonsMigration {
 		'RoomsLanguage' => array(
 			//パブリックスペース
 			//--日本語
-			array('language_id' => '2', 'room_id' => '1', 'name' => 'パブリックスペース'),
+			array('language_id' => '2', 'room_id' => '1', 'name' => 'パブリック'),
 			//--英語
-			array('language_id' => '1', 'room_id' => '1', 'name' => 'Public space'),
+			array('language_id' => '1', 'room_id' => '1', 'name' => 'Public'),
 			//プライベートスペース
 			//--日本語
-			array('language_id' => '2', 'room_id' => '2', 'name' => 'プライベートスペース'),
+			array('language_id' => '2', 'room_id' => '2', 'name' => 'プライベート'),
 			//--英語
-			array('language_id' => '1', 'room_id' => '2', 'name' => 'Private space'),
+			array('language_id' => '1', 'room_id' => '2', 'name' => 'Private'),
 			//グループスペース
 			//--日本語
-			array('language_id' => '2', 'room_id' => '3', 'name' => 'グループスペース'),
+			array('language_id' => '2', 'room_id' => '3', 'name' => 'グループ'),
 			//--英語
-			array('language_id' => '1', 'room_id' => '3', 'name' => 'Group space'),
+			array('language_id' => '1', 'room_id' => '3', 'name' => 'Group'),
 		),
 	);
 

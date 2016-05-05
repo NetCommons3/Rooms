@@ -35,3 +35,14 @@ input[type="checkbox"].rooms-roles-users-checkbox {
 .rooms-roles-form select.form-control.input-sm {
 	background-color: transparent;
 }
+
+.space-name-edit {
+	border: 0px;
+	display: inline;
+}
+.space-edit-table {
+	margin-bottom: 0px;
+}
+table.space-edit-table > tbody > tr > td {
+	border-top: 0px;
+}
