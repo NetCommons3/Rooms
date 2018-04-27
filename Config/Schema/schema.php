@@ -73,9 +73,9 @@ class RoomsSchema extends CakeSchema {
  */
 	public $roles_rooms_users = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false, 'key' => 'primary'),
-		'roles_room_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
+		'roles_room_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false, 'key' => 'index'),
 		'user_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false, 'key' => 'index'),
-		'room_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false),
+		'room_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false, 'key' => 'index'),
 		'access_count' => array('type' => 'integer', 'null' => false, 'default' => '0', 'unsigned' => false),
 		'last_accessed' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'previous_accessed' => array('type' => 'datetime', 'null' => true, 'default' => null),
@@ -85,7 +85,9 @@ class RoomsSchema extends CakeSchema {
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1),
-			'user_id' => array('column' => array('user_id', 'room_id'), 'unique' => 0)
+			'user_id' => array('column' => array('user_id', 'room_id'), 'unique' => 0),
+			'roles_room_id' => array('column' => 'roles_room_id', 'unique' => 0),
+			'room_id' => array('column' => 'room_id', 'unique' => 0)
 		),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -173,7 +175,7 @@ class RoomsSchema extends CakeSchema {
  */
 	public $rooms_languages = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'unsigned' => false, 'key' => 'primary'),
-		'language_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 6, 'unsigned' => false),
+		'language_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 6, 'unsigned' => false, 'key' => 'index'),
 		'is_origin' => array('type' => 'boolean', 'null' => false, 'default' => '1', 'comment' => 'オリジナルかどうか'),
 		'is_translation' => array('type' => 'boolean', 'null' => false, 'default' => '0', 'comment' => '翻訳したかどうか'),
 		'is_original_copy' => array('type' => 'boolean', 'null' => false, 'default' => '0', 'comment' => 'オリジナルのコピー。言語を新たに追加したときに使用する'),
@@ -185,7 +187,8 @@ class RoomsSchema extends CakeSchema {
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1),
-			'room_id' => array('column' => 'room_id', 'unique' => 0)
+			'room_id' => array('column' => 'room_id', 'unique' => 0),
+			'language_id' => array('column' => array('language_id', 'id'), 'unique' => 0)
 		),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
