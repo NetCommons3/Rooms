@@ -142,9 +142,28 @@ class RolesRoomsUser extends RoomsAppModel {
 		$type = Hash::get($query, 'type', 'all');
 		$query = Hash::remove($query, 'type');
 
-		$rolesRoomsUsers = $this->find($type, Hash::merge(array(
-			'recursive' => -1,
-			'joins' => array(
+		//呼ばれる条件に応じて、結合テーブルを切り分ける
+		if ($type == 'count') {
+			$joins = array(
+				array(
+					'table' => $this->Room->table,
+					'alias' => $this->Room->alias,
+					'type' => 'INNER',
+					'conditions' => array(
+						$this->alias . '.room_id' . ' = ' . $this->Room->alias . ' .id',
+					),
+				),
+				array(
+					'table' => $this->User->table,
+					'alias' => $this->User->alias,
+					'type' => 'INNER',
+					'conditions' => array(
+						$this->alias . '.user_id' . ' = ' . $this->User->alias . ' .id',
+					),
+				),
+			);
+		} else {
+			$joins = array(
 				array(
 					'table' => $this->RolesRoom->table,
 					'alias' => $this->RolesRoom->alias,
@@ -177,7 +196,12 @@ class RolesRoomsUser extends RoomsAppModel {
 						$this->alias . '.user_id' . ' = ' . $this->User->alias . ' .id',
 					),
 				),
-			),
+			);
+		}
+
+		$rolesRoomsUsers = $this->find($type, Hash::merge(array(
+			'recursive' => -1,
+			'joins' => $joins,
 			'conditions' => $conditions,
 		), $query));
 

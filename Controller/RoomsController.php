@@ -11,6 +11,7 @@
 
 App::uses('RoomsAppController', 'Rooms.Controller');
 App::uses('UserAttributeChoice', 'UserAttributes.Model');
+App::uses('Space', 'Rooms.Model');
 
 /**
  * Rooms Controller
@@ -127,6 +128,18 @@ class RoomsController extends RoomsAppController {
 		$this->Rooms->setRoomsForPaginator($this->viewVars['activeSpaceId']);
 
 		$roomIds = array_keys($this->viewVars['rooms']);
+
+		//プライベートのときはログインユーザのアクティブルームに限定する
+		if ($this->viewVars['activeSpaceId'] === Space::PRIVATE_SPACE_ID) {
+			$this->Rooms->setReadableRooms(Current::read('User.id'));
+
+			foreach ($this->viewVars['rolesRoomsUsers'] as $rolesRoomsUser) {
+				if ($rolesRoomsUser['Room']['space_id'] === Space::PRIVATE_SPACE_ID) {
+					$roomIds = Array($rolesRoomsUser['Room']['id']);
+					break;
+				}
+			}
+		}
 
 		//参加者リスト取得
 		$rolesRoomsUsers = array();
