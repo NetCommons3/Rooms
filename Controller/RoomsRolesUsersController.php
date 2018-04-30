@@ -65,7 +65,6 @@ class RoomsRolesUsersController extends RoomsAppController {
 			);
 		}
 		parent::beforeFilter();
-		$this->Security->unlockedActions = array('role_room_user');
 
 		$roomId = $this->viewVars['activeRoomId'];
 		$communityRoomId = Space::getRoomIdRoot(Space::COMMUNITY_SPACE_ID);

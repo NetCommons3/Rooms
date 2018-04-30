@@ -147,8 +147,8 @@ class RoomsRolesFormComponent extends Component {
 			$controller->set('participationFixed', $controller->$model->participationFixed);
 		}
 
-		//Ajaxの場合、一時セットとする(次へもしくは決定で更新する)
-		if ($controller->request->is('ajax') && $controller->params['action'] === 'role_room_user') {
+		//role_room_userアクションは、一時的にセッションにセットとする(次へもしくは決定で更新する)
+		if ($controller->params['action'] === 'role_room_user') {
 			return $this->__setRoomRoleUser($controller);
 		}
 

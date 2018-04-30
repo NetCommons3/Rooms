@@ -11,7 +11,7 @@
  * @param {function($scope, $http)} Controller
  */
 NetCommonsApp.controller('RoomsRolesUsers',
-    ['$scope', '$http', function($scope, $http) {
+    ['$scope', '$http', 'ajaxSendPost', function($scope, $http, ajaxSendPost) {
 
       /**
        * アクションURL
@@ -19,10 +19,22 @@ NetCommonsApp.controller('RoomsRolesUsers',
       $scope.actionUrl = null;
 
       /**
+       * トークン情報取得
+       */
+      $scope.tokenData;
+
+      /**
+       * ルームID
+       */
+      $scope.roomId;
+
+      /**
        * initialize
        */
-      $scope.initialize = function(actionUrl) {
+      $scope.initialize = function(actionUrl, roomId, token) {
         $scope.actionUrl = actionUrl;
+        $scope.roomId = roomId;
+        $scope.tokenData = token;
       };
 
       /**
@@ -56,16 +68,20 @@ NetCommonsApp.controller('RoomsRolesUsers',
           RolesRoomsUser: {
             user_id: userId,
             role_key: elements.value
-          }
+          },
+          Room: {
+            id: $scope.roomId
+          },
+          _Token: $scope.tokenData._Token
         };
 
         //POSTリクエスト
-        $http.post($scope.actionUrl + '.json',
-            $.param({_method: 'PUT', data: postData}),
-            {cache: false, headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
-        ).then(function(response) {
-        }, function(response) {
-        });
+        ajaxSendPost('PUT', $scope.actionUrl + '.json', postData)
+            .success(function(response) {
+            })
+            .error(function(response) {
+              //エラー処理
+            });
       };
 
       /**

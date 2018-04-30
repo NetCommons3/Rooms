@@ -26,6 +26,7 @@ class RoomsRolesFormHelper extends AppHelper {
 	public $helpers = array(
 		'NetCommons.NetCommonsForm',
 		'NetCommons.NetCommonsHtml',
+		'NetCommons.Token',
 		'Rooms.Rooms',
 	);
 
@@ -200,6 +201,43 @@ class RoomsRolesFormHelper extends AppHelper {
 			'$(function () { $(\'[data-toggle="popover"]\').popover({html: true}) });</script>';
 
 		return $html;
+	}
+
+/**
+ * Tokenを取得する
+ *
+ * @param string $actionUrl アクションURL
+ * @param int $roomId ルームID
+ * @return array
+ */
+	public function getToken($actionUrl, $roomId) {
+		$currentData = $this->_View->request->data;
+
+		$data = [
+			'RolesRoomsUser' => [
+				'user_id' => '',
+				'role_key' => '',
+			],
+			'Room' => [
+				'id' => $roomId
+			]
+		];
+
+		$tokenFields = Hash::flatten($data);
+		$hiddenFields = $tokenFields;
+		unset(
+			$hiddenFields['RolesRoomsUser.user_id'],
+			$hiddenFields['RolesRoomsUser.role_key']
+		);
+
+		$this->_View->request->data = $data;
+		$tokens = $this->Token->getToken(
+			'RolesRoomsUser', $actionUrl . '.json', $tokenFields, array_keys($hiddenFields)
+		);
+
+		$this->_View->request->data = $currentData;
+
+		return $tokens;
 	}
 
 }
