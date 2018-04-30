@@ -131,37 +131,13 @@ class RoomsController extends RoomsAppController {
 
 		//プライベートのときはログインユーザのアクティブルームに限定する
 		if ($this->viewVars['activeSpaceId'] === Space::PRIVATE_SPACE_ID) {
-			$this->Rooms->setReadableRooms(Current::read('User.id'));
-
-			foreach ($this->viewVars['rolesRoomsUsers'] as $rolesRoomsUser) {
-				if ($rolesRoomsUser['Room']['space_id'] === Space::PRIVATE_SPACE_ID) {
-					$roomIds = Array($rolesRoomsUser['Room']['id']);
-					break;
-				}
-			}
+			$this->set('rolesRoomsUsersCount', []);
+			return;
 		}
 
 		//参加者リスト取得
-		$rolesRoomsUsers = array();
 		$rolesRoomsUsersCount = array();
 		foreach ($roomIds as $roomId) {
-			$result = $this->RolesRoomsUser->getRolesRoomsUsers(
-				array('RolesRoomsUser.room_id' => $roomId),
-				array(
-					'fields' => array(
-						'User.id', 'User.handlename'
-					),
-					'conditions' => array(
-						'User.status' => UserAttributeChoice::STATUS_CODE_ACTIVE
-					),
-					'order' => array(
-						'RoomRole.weight' => 'asc'
-					),
-					'limit' => RoomsComponent::LIST_LIMIT_ROOMS_USERS + 1
-				)
-			);
-			$rolesRoomsUsers[$roomId] = $result;
-
 			$rolesRoomsUsersCount[$roomId] = $this->RolesRoomsUser->getRolesRoomsUsers(
 				array('RolesRoomsUser.room_id' => $roomId),
 				array(
@@ -172,7 +148,6 @@ class RoomsController extends RoomsAppController {
 				)
 			);
 		}
-		$this->set('rolesRoomsUsers', $rolesRoomsUsers);
 		$this->set('rolesRoomsUsersCount', $rolesRoomsUsersCount);
 	}
 

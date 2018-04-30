@@ -317,39 +317,4 @@ class RoomsHelper extends AppHelper {
 		return $output;
 	}
 
-/**
- * ルームの参加者リストを表示する(一覧表示)
- *
- * @param array $roomUsers ルームのユーザリスト配列
- * @param int $roomId ルームID
- * @return string HTML
- */
-	public function roomMembers($roomUsers, $roomId) {
-		$output = '';
-
-		if (! $roomUsers) {
-			return $output;
-		}
-		$moreParams = $this->_View->viewVars['activeSpaceId'] . ', ' .
-				$roomId . ', ' .
-				'\'' . RoomsAppController::WIZARD_ROOMS_ROLES_USERS . '\'';
-
-		foreach ($roomUsers as $i => $user) {
-			if ($i >= RoomsComponent::LIST_LIMIT_ROOMS_USERS) {
-				break;
-			}
-			$handlename = Hash::get($user, 'User.handlename');
-			$output .= $this->DisplayUser->avatarLink(
-				$user, array('alt' => $handlename, 'title' => $handlename), array(), 'User.id'
-			);
-		}
-		if (count($roomUsers) > RoomsComponent::LIST_LIMIT_ROOMS_USERS) {
-			$output .= '<a href="" ng-click="showRoom(' . $moreParams . ')">' .
-						__d('net_commons', '...') .
-					'</a>';
-		}
-
-		return $output;
-	}
-
 }

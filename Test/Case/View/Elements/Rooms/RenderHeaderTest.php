@@ -63,7 +63,7 @@ class RoomsViewElementsRoomsRenderHeaderTest extends NetCommonsControllerTestCas
 
 		$this->assertTextContains(__d('rooms', 'Room name'), $this->view);
 		$this->assertTextContains(__d('rooms', 'Created user'), $this->view);
-		$this->assertTextContains(__d('rooms', 'Members'), $this->view);
+		//$this->assertTextContains(__d('rooms', 'Members'), $this->view);
 	}
 
 }
