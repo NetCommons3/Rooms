@@ -133,17 +133,29 @@ class RolesRoomsUser extends RoomsAppModel {
 			$conditions = Hash::merge(array('Room.page_id_top NOT' => null), $conditions);
 		}
 
-		$query['fields'] = Hash::get($query, 'fields', array(
-			$this->alias . '.*',
-			$this->RolesRoom->alias . '.*',
-			$this->Room->alias . '.*',
-		));
+		if (! isset($query['fields'])) {
+			$query['fields'] = [
+				$this->alias . '.id',
+				$this->alias . '.roles_room_id',
+				$this->alias . '.user_id',
+				$this->alias . '.room_id',
+				$this->alias . '.access_count',
+				$this->alias . '.last_accessed',
+				$this->RolesRoom->alias . '.id',
+				$this->RolesRoom->alias . '.room_id',
+				$this->RolesRoom->alias . '.role_key',
+				$this->Room->alias . '.*',
+			];
+		}
 
 		$type = Hash::get($query, 'type', 'all');
 		$query = Hash::remove($query, 'type');
 
 		//呼ばれる条件に応じて、結合テーブルを切り分ける
-		if ($type == 'count') {
+		if (isset($query['joins'])) {
+			$joins = $query['joins'];
+			unset($query['joins']);
+		} elseif ($type == 'count') {
 			$joins = array(
 				array(
 					'table' => $this->Room->table,

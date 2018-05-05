@@ -173,6 +173,8 @@ class RoomsRolesFormComponent extends Component {
 			}
 		}
 
+		$seached = (bool)($controller->request->query || $room['Room']['default_participation']);
+
 		// 'joins' => 'RolesRoomsUser'でユーザーの重複を絞るが、WHERE句のroom_id条件と意味が違ってくるため、別途条件指定。
 		// 一度取得してIN句だと、全員参加ルームの場合、データ量が多いのでサブクエリを使用する。
 		$queryRoomIdValue = $readableFieldValue = null;
@@ -206,8 +208,8 @@ class RoomsRolesFormComponent extends Component {
 			'displayFields' => self::$displaFields,
 			'extra' => array(
 				'selectedUsers' => $controller->Session->read('RoomsRolesUsers'),
-				'plugin' => $controller->params['plugin'],
-				'search' => (bool)($controller->request->query || $room['Room']['default_participation'])
+				'plugin' => $seached ? $controller->params['plugin'] : '',
+				'search' => $seached
 			)
 		));
 

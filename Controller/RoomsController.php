@@ -33,12 +33,9 @@ class RoomsController extends RoomsAppController {
 			)
 		),
 		'Paginator',
-		'PluginManager.PluginsForm',
 		'Rooms.RoomsRolesForm' => array(
 			'permissions' => array('content_publishable', 'html_not_limited')
 		),
-		'UserAttributes.UserAttributeLayout',
-		'Users.UserSearchComp',
 	);
 
 /**
@@ -50,16 +47,7 @@ class RoomsController extends RoomsAppController {
 		'Pages.Page',
 		'PluginManager.PluginsRoom',
 		'Rooms.Room',
-	);
-
-/**
- * use helpers
- *
- * @var array
- */
-	public $helpers = array(
-		'UserAttributes.UserAttributeLayout',
-		'Users.UserSearch',
+		'Users.User',
 	);
 
 /**
@@ -137,16 +125,39 @@ class RoomsController extends RoomsAppController {
 
 		//参加者リスト取得
 		$rolesRoomsUsersCount = array();
-		foreach ($roomIds as $roomId) {
-			$rolesRoomsUsersCount[$roomId] = $this->RolesRoomsUser->getRolesRoomsUsers(
-				array('RolesRoomsUser.room_id' => $roomId),
-				array(
-					'type' => 'count',
-					'conditions' => array(
-						'User.status' => UserAttributeChoice::STATUS_CODE_ACTIVE
-					),
-				)
-			);
+		$counts = $this->RolesRoomsUser->getRolesRoomsUsers(
+			array('Room.id' => $roomIds),
+			array(
+				'type' => 'all',
+				'fields' => [
+					'Room.id', 'COUNT(*) AS count'
+				],
+				'conditions' => array(
+					'User.status' => UserAttributeChoice::STATUS_CODE_ACTIVE
+				),
+				'joins' => [
+					[
+						'table' => $this->Room->table,
+						'alias' => $this->Room->alias,
+						'type' => 'INNER',
+						'conditions' => [
+							$this->RolesRoomsUser->alias . '.room_id' . ' = ' . $this->Room->alias . ' .id',
+						],
+					],
+					[
+						'table' => $this->User->table,
+						'alias' => $this->User->alias,
+						'type' => 'INNER',
+						'conditions' => [
+							$this->RolesRoomsUser->alias . '.user_id' . ' = ' . $this->User->alias . ' .id',
+						],
+					],
+				],
+				'group' => 'Room.id'
+			)
+		);
+		foreach ($counts as $count) {
+			$rolesRoomsUsersCount[$count['Room']['id']] = $count[0]['count'];
 		}
 		$this->set('rolesRoomsUsersCount', $rolesRoomsUsersCount);
 	}
@@ -170,14 +181,29 @@ class RoomsController extends RoomsAppController {
 				'conditions' => array('id' => $this->viewVars['room']['Room']['page_id_top'])
 			))
 		);
+		Current::write('Room', $this->viewVars['room']['Room']);
+
+		$this->UserAttributeLayout = $this->Components->load('UserAttributes.UserAttributeLayout');
+		$this->UserAttributeLayout->initialize($this);
+		$this->UserAttributeLayout->startup($this);
+
+		$this->UserSearchComp = $this->Components->load('Users.UserSearchComp');
+		$this->UserSearchComp->initialize($this);
+		$this->UserSearchComp->startup($this);
+
+		$this->helpers['UserAttributes.UserAttributeLayout'] = null;
+		$this->helpers['Users.UserSearch'] = null;
 
 		$this->RoomsRolesForm->settings['room_id'] = $this->viewVars['activeRoomId'];
 		$this->RoomsRolesForm->settings['type'] = DefaultRolePermission::TYPE_ROOM_ROLE;
-		$this->PluginsForm->roomId = $this->viewVars['activeRoomId'];
-
 		$this->RoomsRolesForm->limit = 10;
 		$this->request->query = array();
 		$this->RoomsRolesForm->actionRoomsRolesUser($this);
+
+		$this->PluginsForm = $this->Components->load('PluginManager.PluginsForm');
+		$this->PluginsForm->initialize($this);
+		$this->PluginsForm->startup($this);
+		$this->PluginsForm->roomId = $this->viewVars['activeRoomId'];
 	}
 
 /**
