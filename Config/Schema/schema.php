@@ -209,7 +209,7 @@ class RoomsSchema extends CakeSchema {
 		'room_disk_size' => array('type' => 'biginteger', 'null' => true, 'default' => null, 'unsigned' => false, 'comment' => '各ルームの容量。NULLの場合、無制限。'),
 		'room_id_root' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false),
 		'page_id_top' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false),
-		'permalink' => array('type' => 'string', 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
+		'permalink' => array('type' => 'string', 'null' => false, 'default' => null, 'key' => 'index', 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
 		'is_m17n' => array('type' => 'boolean', 'null' => true, 'default' => '0'),
 		'after_user_save_model' => array('type' => 'string', 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
 		'created_user' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false),
@@ -217,7 +217,8 @@ class RoomsSchema extends CakeSchema {
 		'modified_user' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false),
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'indexes' => array(
-			'PRIMARY' => array('column' => 'id', 'unique' => 1)
+			'PRIMARY' => array('column' => 'id', 'unique' => 1),
+			'permalink' => array('column' => array('permalink', 'id'), 'unique' => 0)
 		),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
