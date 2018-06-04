@@ -47,6 +47,7 @@ class RoomsAppController extends AppController {
  * @var array
  */
 	public $uses = array(
+		'Pages.Page',
 		'Rooms.Room',
 		'Rooms.Space',
 	);
