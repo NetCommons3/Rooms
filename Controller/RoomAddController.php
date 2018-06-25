@@ -99,7 +99,6 @@ class RoomAddController extends RoomsAppController {
  */
 	public function beforeFilter() {
 		parent::beforeFilter();
-		$this->Security->unlockedActions = array('role_room_user');
 
 		//ウィザードの設定
 		$navibar = $this->helpers['NetCommons.Wizard']['navibar'];

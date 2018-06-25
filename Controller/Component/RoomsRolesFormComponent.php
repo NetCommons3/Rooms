@@ -147,8 +147,8 @@ class RoomsRolesFormComponent extends Component {
 			$controller->set('participationFixed', $controller->$model->participationFixed);
 		}
 
-		//Ajaxの場合、一時セットとする(次へもしくは決定で更新する)
-		if ($controller->request->is('ajax') && $controller->params['action'] === 'role_room_user') {
+		//role_room_userアクションは、一時的にセッションにセットとする(次へもしくは決定で更新する)
+		if ($controller->params['action'] === 'role_room_user') {
 			return $this->__setRoomRoleUser($controller);
 		}
 
@@ -172,6 +172,8 @@ class RoomsRolesFormComponent extends Component {
 				$controller->Session->write('RoomsRolesUsers', $data['RolesRoomsUser']);
 			}
 		}
+
+		$seached = (bool)($controller->request->query || $room['Room']['default_participation']);
 
 		// 'joins' => 'RolesRoomsUser'でユーザーの重複を絞るが、WHERE句のroom_id条件と意味が違ってくるため、別途条件指定。
 		// 一度取得してIN句だと、全員参加ルームの場合、データ量が多いのでサブクエリを使用する。
@@ -206,8 +208,8 @@ class RoomsRolesFormComponent extends Component {
 			'displayFields' => self::$displaFields,
 			'extra' => array(
 				'selectedUsers' => $controller->Session->read('RoomsRolesUsers'),
-				'plugin' => $controller->params['plugin'],
-				'search' => (bool)($controller->request->query || $room['Room']['default_participation'])
+				'plugin' => $seached ? $controller->params['plugin'] : '',
+				'search' => $seached
 			)
 		));
 

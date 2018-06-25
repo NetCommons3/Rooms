@@ -79,6 +79,7 @@ class PluginsRoomsController extends RoomsAppController {
 			}
 
 		} else {
+			Current::write('Room', $this->viewVars['room']['Room']);
 			$this->request->data = $this->viewVars['room'];
 		}
 	}

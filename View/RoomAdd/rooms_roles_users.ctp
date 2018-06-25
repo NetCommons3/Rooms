@@ -25,15 +25,18 @@ echo $this->element('NetCommons.javascript_alert');
 ?>
 
 <?php
-	$ajaxAction = $this->NetCommonsHtml->url(array(
-		'action' => 'role_room_user',
-		'key' => Hash::get($this->data, 'Room.space_id'),
-		'key2' => Hash::get($this->data, 'Room.parent_id')
-	));
+	$roomId = Hash::get($this->data, 'Room.parent_id');
+	$ajaxAction =
+		'/' . $this->request->params['plugin'] .
+		'/' . $this->request->params['controller'] .
+		'/' . 'role_room_user' .
+		'/' . Hash::get($this->data, 'Room.space_id') .
+		'/' . $roomId;
+	$token = $this->RoomsRolesForm->getToken($ajaxAction, $roomId);
 
 	echo $this->NetCommonsForm->create('Room', array(
 		'ng-controller' => 'RoomsRolesUsers',
-		'ng-init' => 'initialize(\'' . $ajaxAction . '\');',
+		'ng-init' => 'initialize(\'' . $ajaxAction . '\', \'' . $roomId . '\', ' . json_encode($token) . ');',
 	));
 
 	echo $this->NetCommonsForm->hidden('Room.id');
