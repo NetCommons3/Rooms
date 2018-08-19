@@ -72,7 +72,8 @@ class Room extends RoomsAppModel {
 		'Rooms.DeleteRoomAssociations',
 		'Rooms.Room',
 		'Rooms.SaveRoomAssociations',
-		'Tree',
+		//'Tree',
+		'NetCommons.NetCommonsTree',
 	);
 
 /**

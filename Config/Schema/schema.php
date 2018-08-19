@@ -146,6 +146,9 @@ class RoomsSchema extends CakeSchema {
 		'parent_id' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false, 'key' => 'index'),
 		'lft' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false, 'key' => 'index'),
 		'rght' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false, 'key' => 'index'),
+		'weight' => array('type' => 'integer', 'null' => true, 'default' => null, 'unsigned' => false),
+		'sort_key' => array('type' => 'string', 'null' => true, 'default' => null, 'key' => 'index', 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
+		'child_count' => array('type' => 'integer', 'null' => true, 'default' => '0', 'unsigned' => false),
 		'active' => array('type' => 'boolean', 'null' => true, 'default' => null),
 		'in_draft' => array('type' => 'boolean', 'null' => false, 'default' => '0', 'comment' => '作成中かどうか。1: 作成中、0: 確定'),
 		'default_role_key' => array('type' => 'string', 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '「ルーム内の役割」のデフォルト値', 'charset' => 'utf8'),
@@ -163,7 +166,9 @@ class RoomsSchema extends CakeSchema {
 			'lft' => array('column' => array('lft', 'id'), 'unique' => 0),
 			'rght' => array('column' => array('rght', 'id'), 'unique' => 0),
 			'default_participation' => array('column' => 'default_participation', 'unique' => 0),
-			'parent_id' => array('column' => 'parent_id', 'unique' => 0)
+			'parent_id_2' => array('column' => array('parent_id', 'sort_key', 'id'), 'unique' => 0),
+			'sort_key' => array('column' => array('sort_key', 'id'), 'unique' => 0),
+			'weight' => array('column' => array('parent_id', 'weight'), 'unique' => 0)
 		),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
