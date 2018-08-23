@@ -25,6 +25,13 @@ App::uses('Space', 'Rooms.Model');
 class RolesRoomsUser extends RoomsAppModel {
 
 /**
+ * 同じデータを取得しないようにキャッシュする
+ *
+ * @var array
+ */
+	private static $__memoryCache = [];
+
+/**
  * Validation rules
  *
  * @var array
@@ -133,8 +140,37 @@ class RolesRoomsUser extends RoomsAppModel {
 			$conditions = Hash::merge(array('Room.page_id_top NOT' => null), $conditions);
 		}
 
-		if (! isset($query['fields'])) {
-			$query['fields'] = [
+		// Condition以外のクエリ調整
+		$fields = $this->__getRolesRoomsUsersFields($query);
+		$type = $this->__getRolesRoomsUsersType($query);
+		$joins = $this->__getRolesRoomsUsersJoin($type, $query);
+
+		// 取得条件毎にキャッシュする
+		$cacheId = json_encode($conditions);
+		if (empty(self::$__memoryCache[$cacheId][$type])) {
+			self::$__memoryCache[$cacheId][$type] = $this->find($type, Hash::merge(array(
+				'recursive' => -1,
+				'fields' => $fields,
+				'joins' => $joins,
+				'conditions' => $conditions,
+			), $query));
+		}
+		$rolesRoomsUsers = self::$__memoryCache[$cacheId][$type];
+		return $rolesRoomsUsers;
+	}
+
+/**
+ * Return Fields of "roles rooms users"  to get
+ *
+ * @param array &$query Condition以外のクエリ
+ * @return array
+ */
+	private function __getRolesRoomsUsersFields(&$query) {
+		if (isset($query['fields'])) {
+			$fields = $query['fields'];
+			unset($query['fields']);
+		} else {
+			$fields = [
 				$this->alias . '.id',
 				$this->alias . '.roles_room_id',
 				$this->alias . '.user_id',
@@ -148,9 +184,31 @@ class RolesRoomsUser extends RoomsAppModel {
 			];
 		}
 
+		return $fields;
+	}
+
+/**
+ * Return Type of Query
+ *
+ * @param array &$query Condition以外のクエリ
+ * @return string
+ * @throws InvalidArgumentException
+ */
+	private function __getRolesRoomsUsersType(&$query) {
 		$type = Hash::get($query, 'type', 'all');
 		$query = Hash::remove($query, 'type');
 
+		return $type;
+	}
+
+/**
+ * Return Joins of Query
+ *
+ * @param string $type 取得するタイプ
+ * @param array &$query Condition以外のクエリ
+ * @return string
+ */
+	private function __getRolesRoomsUsersJoin($type, &$query) {
 		//呼ばれる条件に応じて、結合テーブルを切り分ける
 		if (isset($query['joins'])) {
 			$joins = $query['joins'];
@@ -211,13 +269,7 @@ class RolesRoomsUser extends RoomsAppModel {
 			);
 		}
 
-		$rolesRoomsUsers = $this->find($type, Hash::merge(array(
-			'recursive' => -1,
-			'joins' => $joins,
-			'conditions' => $conditions,
-		), $query));
-
-		return $rolesRoomsUsers;
+		return $joins;
 	}
 
 /**
