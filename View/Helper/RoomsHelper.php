@@ -197,16 +197,19 @@ class RoomsHelper extends AppHelper {
  * @return string HTML
  */
 	public function roomName($room, $nest = null) {
-		$roomsLanguage = Hash::extract(
-			$room,
-			'RoomsLanguage.{n}[language_id=' . Current::read('Language.id') . ']'
-		);
+		$name = '';
+		foreach ($room['RoomsLanguage'] as $item) {
+			if ($item['language_id'] == Current::read('Language.id')) {
+				$name = $item['name'];
+				break;
+			}
+		}
 
 		$output = '';
 		if (isset($nest)) {
 			$output .= str_repeat('<span class="rooms-tree"> </span>', $nest);
 		}
-		$output .= h(Hash::get($roomsLanguage, '0.name'));
+		$output .= h($name);
 		return $output;
 	}
 
