@@ -139,50 +139,6 @@ class Space extends RoomsAppModel {
 	);
 
 /**
- * Called during validation operations, before validation. Please note that custom
- * validation rules can be defined in $validate.
- *
- * @param array $options Options passed from Model::save().
- * @return bool True if validate operation should continue, false to abort
- * @link http://book.cakephp.org/2.0/en/models/callback-methods.html#beforevalidate
- * @see Model::save()
- */
-	public function beforeValidate($options = array()) {
-		$this->validate = Hash::merge($this->validate, array(
-			//TreeBehaviorで使用
-			'parent_id' => array(
-				'numeric' => array(
-					'rule' => array('numeric'),
-					'message' => __d('net_commons', 'Invalid request.'),
-					'allowEmpty' => true,
-					'required' => false,
-					'on' => 'update', // Limit validation to 'create' or 'update' operations
-				),
-			),
-			//TreeBehaviorで使用
-			'lft' => array(
-				'numeric' => array(
-					'rule' => array('numeric'),
-					'message' => __d('net_commons', 'Invalid request.'),
-					'required' => false,
-					'on' => 'update', // Limit validation to 'create' or 'update' operations
-				),
-			),
-			//TreeBehaviorで使用
-			'rght' => array(
-				'numeric' => array(
-					'rule' => array('numeric'),
-					'message' => __d('net_commons', 'Invalid request.'),
-					'required' => false,
-					'on' => 'update', // Limit validation to 'create' or 'update' operations
-				),
-			),
-		));
-
-		return parent::beforeValidate($options);
-	}
-
-/**
  * RoomSpaceルームのデフォルト値
  *
  * @param array $data 初期値データ配列
