@@ -124,7 +124,7 @@ class RoomDeleteRoomTest extends NetCommonsDeleteTest {
 		$method = $this->_methodName;
 
 		//TreeBehaviorでもdeleteAllが実行されるため、計２回となる
-		$this->_mockForReturnFalse($model, 'Rooms.Room', 'deleteAll', 2);
+		$this->_mockForReturnFalse($model, 'Rooms.Room', 'deleteAll', 1);
 
 		$this->setExpectedException('InternalErrorException');
 		$data['Room'] = array('id' => '2');

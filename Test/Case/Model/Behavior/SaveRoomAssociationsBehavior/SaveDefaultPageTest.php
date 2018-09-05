@@ -134,8 +134,11 @@ class SaveRoomAssociationsBehaviorSaveDefaultPageTest extends NetCommonsModelTes
 			'id' => $pageId,
 			'room_id' => $roomId,
 			'parent_id' => '1',
-			'lft' => '6',
-			'rght' => '7',
+			//'lft' => '6',
+			//'rght' => '7',
+			'weight' => '3',
+			'sort_key' => '~00000001-00000003',
+			'child_count' => '0',
 			'permalink' => $permalink,
 			'slug' => $permalink,
 		));
@@ -145,6 +148,7 @@ class SaveRoomAssociationsBehaviorSaveDefaultPageTest extends NetCommonsModelTes
 			'fields' => array_keys($expected['Page']),
 			'conditions' => array('id' => $pageId),
 		));
+
 		$this->assertEquals($expected, $result);
 	}
 

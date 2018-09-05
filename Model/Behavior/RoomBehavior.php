@@ -72,7 +72,7 @@ class RoomBehavior extends ModelBehavior {
 				$model->Room->alias . '.page_id_top NOT' => null,
 				$model->Room->alias . '.in_draft' => false
 			),
-			'order' => 'Room.lft',
+			'order' => 'Room.sort_key',
 		), $options);
 
 		return $options;
@@ -152,7 +152,7 @@ class RoomBehavior extends ModelBehavior {
 					),
 				),
 			),
-			'order' => 'Room.lft',
+			'order' => 'Room.sort_key',
 		), array('conditions' => $conditions));
 
 		return $options;
@@ -181,7 +181,7 @@ class RoomBehavior extends ModelBehavior {
 			'conditions' => array(
 				$model->Room->alias . '.parent_id' => Space::getRoomIdRoot(Space::WHOLE_SITE_ID, 'Room'),
 			),
-			'order' => 'Room.lft'
+			'order' => 'Room.sort_key'
 		));
 		// 外したものを戻しておく
 		$model->Room->bindModel(array(

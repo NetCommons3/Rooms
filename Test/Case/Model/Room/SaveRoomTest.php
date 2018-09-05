@@ -187,13 +187,13 @@ class RoomSaveRoomTest extends NetCommonsSaveTest {
 			'conditions' => array('id' => $id),
 		));
 		if (isset($data[$this->$model->alias]['id'])) {
-			$actual[$this->$model->alias] = Hash::remove($actual[$this->$model->alias], 'modified');
-			$actual[$this->$model->alias] = Hash::remove($actual[$this->$model->alias], 'modified_user');
+			unset($actual[$this->$model->alias]['modified']);
+			unset($actual[$this->$model->alias]['modified_user']);
 		} else {
-			$actual[$this->$model->alias] = Hash::remove($actual[$this->$model->alias], 'created');
-			$actual[$this->$model->alias] = Hash::remove($actual[$this->$model->alias], 'created_user');
-			$actual[$this->$model->alias] = Hash::remove($actual[$this->$model->alias], 'modified');
-			$actual[$this->$model->alias] = Hash::remove($actual[$this->$model->alias], 'modified_user');
+			unset($actual[$this->$model->alias]['created']);
+			unset($actual[$this->$model->alias]['created_user']);
+			unset($actual[$this->$model->alias]['modified']);
+			unset($actual[$this->$model->alias]['modified_user']);
 			$before[$this->$model->alias] = array();
 		}
 		$expected[$this->$model->alias] = Hash::merge(
@@ -202,8 +202,8 @@ class RoomSaveRoomTest extends NetCommonsSaveTest {
 			array('id' => $id),
 			$treeData
 		);
-		$expected[$this->$model->alias] = Hash::remove($expected[$this->$model->alias], 'modified');
-		$expected[$this->$model->alias] = Hash::remove($expected[$this->$model->alias], 'modified_user');
+		unset($expected[$this->$model->alias]['modified']);
+		unset($expected[$this->$model->alias]['modified_user']);
 	}
 
 /**

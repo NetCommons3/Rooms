@@ -72,7 +72,8 @@ class Room extends RoomsAppModel {
 		'Rooms.DeleteRoomAssociations',
 		'Rooms.Room',
 		'Rooms.SaveRoomAssociations',
-		'Tree',
+		//'Tree',
+		'NetCommons.NetCommonsTree',
 	);
 
 /**
@@ -230,20 +231,20 @@ class Room extends RoomsAppModel {
 					'on' => 'update', // Limit validation to 'create' or 'update' operations
 				),
 			),
-			'lft' => array(
-				'numeric' => array(
-					'rule' => array('numeric'), 'required' => false,
-					'message' => __d('net_commons', 'Invalid request.'),
-					'on' => 'update', // Limit validation to 'create' or 'update' operations
-				),
-			),
-			'rght' => array(
-				'numeric' => array(
-					'rule' => array('numeric'), 'required' => false,
-					'message' => __d('net_commons', 'Invalid request.'),
-					'on' => 'update', // Limit validation to 'create' or 'update' operations
-				),
-			),
+			//'lft' => array(
+			//	'numeric' => array(
+			//		'rule' => array('numeric'), 'required' => false,
+			//		'message' => __d('net_commons', 'Invalid request.'),
+			//		'on' => 'update', // Limit validation to 'create' or 'update' operations
+			//	),
+			//),
+			//'rght' => array(
+			//	'numeric' => array(
+			//		'rule' => array('numeric'), 'required' => false,
+			//		'message' => __d('net_commons', 'Invalid request.'),
+			//		'on' => 'update', // Limit validation to 'create' or 'update' operations
+			//	),
+			//),
 		));
 
 		if (Hash::get($this->data, 'Room.space_id') === Space::PRIVATE_SPACE_ID) {
