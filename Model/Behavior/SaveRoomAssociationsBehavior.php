@@ -37,13 +37,23 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 			$model->saveDefaultRoomRolePermission($room);
 		}
 
-		if ($created || Hash::get($room, 'Room.in_draft')) {
+		if (isset($room['Room']['in_draft'])) {
+			$inDraft = $room['Room']['in_draft'];
+		} else {
+			$inDraft = null;
+		}
+		if (isset($options['preUpdate']['Room']['in_draft'])) {
+			$inDraftByPreUpdate = $options['preUpdate']['Room']['in_draft'];
+		} else {
+			$inDraftByPreUpdate = null;
+		}
+
+		if ($created || $inDraft) {
 			$model->saveDefaultRolesRoomsUser($room, true);
 			$model->saveDefaultRolesPluginsRoom($room);
 		}
 
-		if (! Hash::get($room, 'Room.in_draft') &&
-				($created || Hash::get($options, 'preUpdate.Room.in_draft'))) {
+		if (! $inDraft && ($created || $inDraftByPreUpdate)) {
 			$page = $model->saveDefaultPage($room);
 			$model->data = Hash::merge($room, $page);
 		}
@@ -115,11 +125,12 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 		]);
 		$db = $model->getDataSource();
 
-		if (Hash::check($data, 'RolesRoomsUser.user_id')) {
-			$userId = Hash::get($data, 'RolesRoomsUser.user_id');
+		if (isset($data['RolesRoomsUser']['user_id'])) {
+			$userId = $data['RolesRoomsUser']['user_id'];
 		} else {
 			$userId = Current::read('User.id');
 		}
+
 		if ($isRoomCreate) {
 			//ルーム作成者をRolesRoomsUsersのルーム管理者で登録する
 			$roleKey = Role::ROOM_ROLE_KEY_ROOM_ADMINISTRATOR;
@@ -147,15 +158,15 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 			return true;
 		}
 
-		$count = $model->User->find('count', array(
-			'recursive' => -1,
-			'conditions' => array(
-				'id !=' => $userId,
-			)
-		));
-		if (! $count) {
-			return true;
-		}
+		//$count = $model->User->find('count', array(
+		//	'recursive' => -1,
+		//	'conditions' => array(
+		//		'id !=' => $userId,
+		//	)
+		//));
+		//if (! $count) {
+		//	return true;
+		//}
 
 		//多数のデータを一括で登録するためINSERT INTO ... SELECTを使う。
 		//--デフォルトのロールを取得
@@ -170,18 +181,22 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 		$tableName = $model->tablePrefix . $model->RolesRoomsUser->table;
 		$values = array(
 			'roles_room_id' => $db->value($rolesRoom['RolesRoom']['id'], 'string'),
-			'user_id' => $model->User->escapeField('id'),
+			'user_id' => $model->RolesRoomsUser->escapeField('user_id'),
 			'room_id' => $db->value($data['Room']['id'], 'string'),
 			'created' => $db->value(date('Y-m-d H:i:s'), 'string'),
 			'created_user' => $db->value(Current::read('User.id'), 'string'),
 			'modified' => $db->value(date('Y-m-d H:i:s'), 'string'),
 			'modified_user' => $db->value(Current::read('User.id'), 'string'),
 		);
+
+		$parentRoomId = $data['Room']['parent_id'];
 		$joins = array(
-			$model->tablePrefix . $model->User->table . ' AS ' . $model->User->alias => null,
+			$model->tablePrefix . $model->RolesRoomsUser->table . ' AS ' .
+													$model->RolesRoomsUser->alias => null,
 		);
 		$wheres = array(
-			$model->User->escapeField('id') . ' != ' . $db->value($userId, 'string'),
+			$model->RolesRoomsUser->escapeField('room_id') . ' = ' . $db->value($parentRoomId, 'string'),
+			$model->RolesRoomsUser->escapeField('user_id') . ' != ' . $db->value($userId, 'string'),
 		);
 
 		//--クエリの実行
@@ -189,10 +204,10 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 			$tableName, array_keys($values), array_values($values), $joins, $wheres
 		);
 		$model->RolesRoomsUser->query($sql);
-		$result = $model->RolesRoomsUser->getAffectedRows() > 0;
-		if (! $result) {
-			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
-		}
+		//$result = $model->RolesRoomsUser->getAffectedRows() > 0;
+		//if (! $result) {
+		//	throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
+		//}
 
 		return true;
 	}
@@ -412,7 +427,6 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 			}
 		}
 		$sql .= 'WHERE ' . implode(' AND ', $where);
-
 		return $sql;
 	}
 
@@ -429,32 +443,26 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 			'RolesRoomsUser' => 'Rooms.RolesRoomsUser',
 		]);
 
-		$result = $model->Room->find('all', array(
+		$rooms = [];
+		$roomIds = [];
+		$result = $model->Room->find('all', [
 			'recursive' => 0,
-			'conditions' => array(
+			'conditions' => [
 				'Room.id = Space.room_id_root'
-			),
-		));
-		$rooms = Hash::combine($result, '{n}.Room.id', '{n}');
-
-		$result = $model->Room->find('all', array(
-			'recursive' => -1,
-			'conditions' => array(
-				'OR' => array(
-					'default_participation' => true,
-					'parent_id' => Space::getRoomIdRoot(Space::WHOLE_SITE_ID, 'Room')
-				)
-			),
-		));
-		$rooms = Hash::merge($rooms, Hash::combine($result, '{n}.Room.id', '{n}'));
+			],
+		]);
+		foreach ($result as $room) {
+			$roomId = $room['Room']['id'];
+			$rooms[$roomId] = $room;
+			$roomIds[] = $roomId;
+		}
+		$this->__setDefaultParticipationRooms($model, $rooms, $roomIds, $roomIds);
 
 		if (! Configure::read('NetCommons.installed')) {
 			$rooms = Hash::insert(
 				$rooms, '{n}.Room.default_role_key', Role::ROOM_ROLE_KEY_ROOM_ADMINISTRATOR
 			);
 		}
-
-		$roomIds = Hash::extract($rooms, '{n}.Room.id');
 
 		$rolesRooms = $model->RolesRoom->find('list', array(
 			'recursive' => -1,
@@ -468,18 +476,52 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 		foreach ($rooms as $room) {
 			$roomId = $room['Room']['id'];
 			$model->RolesRoomsUser->create(false);
-			$rolesRoomsUsers[$roomId] = $model->RolesRoomsUser->create([
-				'id' => null,
-				'roles_room_id' => Hash::get($rolesRooms, $roomId . '.' . $room['Room']['default_role_key']),
-				'user_id' => null,
-				'room_id' => $roomId,
-			]);
+
+			$roleKey = $room['Room']['default_role_key'];
+			if (isset($rolesRooms[$roomId][$roleKey])) {
+				$rolesRoomId = $rolesRooms[$roomId][$roleKey];
+				$rolesRoomsUser = $model->RolesRoomsUser->create([
+					'id' => null,
+					'roles_room_id' => $rolesRoomId,
+					'user_id' => null,
+					'room_id' => $roomId,
+				]);
+				$rolesRoomsUsers[$roomId] = $rolesRoomsUser['RolesRoomsUser'];
+			}
 		}
-		$rolesRoomsUsers = Hash::combine(
-			$rolesRoomsUsers, '{n}.RolesRoomsUser.room_id', '{n}.RolesRoomsUser'
-		);
 
 		return $rolesRoomsUsers;
+	}
+
+/**
+ * 1ユーザに対するRolesRoomsUserのデフォルトデータ取得処理
+ *
+ * @param Model $model 呼び出し元のモデル
+ * @param array &$rooms セットするルームデータ配列
+ * @param array &$roomIds セットするルームIDリスト
+ * @param array $whereIds 取得する条件のルームIDリスト
+ * @return array
+ */
+	private function __setDefaultParticipationRooms(Model $model, &$rooms, &$roomIds, $whereIds) {
+		$result = $model->Room->find('all', [
+			'recursive' => -1,
+			'conditions' => [
+				'default_participation' => true,
+				'parent_id' => $whereIds
+			],
+		]);
+
+		$nextRoomIds = [];
+		foreach ($result as $room) {
+			$roomId = $room['Room']['id'];
+			$rooms[$roomId] = $room;
+			$roomIds[] = $roomId;
+			$nextRoomIds[] = $roomId;
+		}
+
+		if ($nextRoomIds) {
+			$this->__setDefaultParticipationRooms($model, $rooms, $roomIds, $nextRoomIds);
+		}
 	}
 
 /**

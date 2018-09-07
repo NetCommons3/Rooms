@@ -162,11 +162,11 @@ class RoomsSchema extends CakeSchema {
 		'modified' => array('type' => 'datetime', 'null' => true, 'default' => null),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1),
-			'default_participation' => array('column' => 'default_participation', 'unique' => 0),
 			'parent_id_2' => array('column' => array('parent_id', 'sort_key', 'id'), 'unique' => 0),
 			'sort_key' => array('column' => array('sort_key', 'id'), 'unique' => 0),
 			'weight' => array('column' => array('parent_id', 'weight'), 'unique' => 0),
-			'space_id_2' => array('column' => array('space_id', 'page_id_top', 'sort_key'), 'unique' => 0)
+			'space_id_2' => array('column' => array('space_id', 'page_id_top', 'sort_key'), 'unique' => 0),
+			'default_participation' => array('column' => array('default_participation', 'parent_id'), 'unique' => 0)
 		),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);

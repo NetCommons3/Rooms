@@ -305,14 +305,30 @@ class Room extends RoomsAppModel {
 	public function beforeSave($options = array()) {
 		$room = Hash::get($this->data, 'Room');
 
-		if (Hash::get($room, 'id') && Hash::get($room, 'in_draft') &&
-			Hash::get($room, 'default_participation') !== Hash::get($options, 'preUpdate.Room.in_draft')) {
+		if (isset($room['in_draft'])) {
+			$inDraft = $room['in_draft'];
+		} else {
+			$inDraft = null;
+		}
+		if (isset($room['default_participation'])) {
+			$defaultPart = $room['default_participation'];
+		} else {
+			$defaultPart = null;
+		}
+		if (isset($options['preUpdate']['Room']['default_participation'])) {
+			$preDefaultPart = $options['preUpdate']['Room']['default_participation'];
+		} else {
+			$preDefaultPart = null;
+		}
 
+		if (isset($room['id']) &&
+				$inDraft &&
+				$defaultPart !== $preDefaultPart) {
 			$this->loadModels([
 				'RolesRoomsUser' => 'Rooms.RolesRoomsUser',
 			]);
 
-			$conditions = array($this->RolesRoomsUser->alias . '.room_id' => Hash::get($room, 'id'));
+			$conditions = array($this->RolesRoomsUser->alias . '.room_id' => $room['id']);
 			if (! $this->RolesRoomsUser->deleteAll($conditions, false)) {
 				throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 			}
