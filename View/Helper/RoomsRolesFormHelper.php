@@ -44,6 +44,7 @@ class RoomsRolesFormHelper extends AppHelper {
 			'/rooms/js/role_permissions.js',
 			'/rooms/js/room_role_permissions.js'
 		));
+
 		parent::beforeRender($viewFile);
 	}
 
