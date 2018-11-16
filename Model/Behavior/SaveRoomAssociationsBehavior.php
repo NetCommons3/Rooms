@@ -18,6 +18,7 @@ App::uses('Page', 'Pages.Model');
  *
  * @author Shohei Nakajima <nakajimashouhei@gmail.com>
  * @package NetCommons\Rooms\Model\Behavior
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class SaveRoomAssociationsBehavior extends ModelBehavior {
 
@@ -338,16 +339,20 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 			'Room' => 'Rooms.Room',
 		]);
 
+		$parentPageId = $this->_getParentPageId($model, $data);
 		$slug = Hash::get(
-			$data, 'Page.permalink', OriginalKeyBehavior::generateKey('Page', $model->useDbConfig)
+			$data, 'Page.slug', OriginalKeyBehavior::generateKey('Page', $model->useDbConfig)
+		);
+		$permalink = Hash::get(
+			$data, 'Page.permalink', $this->_getParentRoomPermalink($model, $parentPageId) . $slug
 		);
 		$page = Hash::merge($data, array(
 			'Page' => array(
 				'slug' => $slug,
-				'permalink' => $slug,
+				'permalink' => $permalink,
 				'room_id' => $data['Room']['id'],
-				'root_id' => $this->_getParentPageId($model, $data),
-				'parent_id' => $this->_getParentPageId($model, $data)
+				'root_id' => $parentPageId,
+				'parent_id' => $parentPageId
 			),
 			//'PagesLanguage' => array(
 			//	'language_id' => Current::read('Language.id'),
@@ -370,18 +375,34 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 		if (! $page) {
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 		}
-
 		if (! $model->Room->updateAll(
 			array($model->Room->alias . '.page_id_top' => $page['Page']['id']),
 			array($model->Room->alias . '.id' => $data['Room']['id'])
 		)) {
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 		}
-
 		$page[$model->Room->alias]['page_id_top'] = $page['Page']['id'];
 		return $page;
 	}
-
+/**
+ * 親ページPermalinkを取得する
+ *
+ * @param Model $model 呼び出し前のモデル
+ * @param int $parentPageId 親ページID
+ * @return string
+ */
+	protected function _getParentRoomPermalink(Model $model, $parentPageId) {
+		$model->loadModels(['Page' => 'Pages.Page']);
+		$page = $model->Page->find('first', array(
+			'conditions' => array('id' => $parentPageId),
+			'recursive' => -1
+		));
+		$parentPermalink = Hash::get($page, 'Page.permalink', '');
+		if (! empty($parentPermalink)) {
+			$parentPermalink = $parentPermalink . DS;
+		}
+		return $parentPermalink;
+	}
 /**
  * 親ページIDを取得する
  *
