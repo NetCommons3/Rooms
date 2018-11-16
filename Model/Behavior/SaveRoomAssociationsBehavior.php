@@ -18,6 +18,7 @@ App::uses('Page', 'Pages.Model');
  *
  * @author Shohei Nakajima <nakajimashouhei@gmail.com>
  * @package NetCommons\Rooms\Model\Behavior
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class SaveRoomAssociationsBehavior extends ModelBehavior {
 
