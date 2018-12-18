@@ -63,10 +63,12 @@ class RoomsRolesFormHelperBeforeRenderTest extends NetCommonsControllerTestCase 
 		$this->assertRegExp($pattern, $this->view);
 
 		//scriptのURLチェック
-		$pattern = '/<script.*?' . preg_quote('/rooms/js/role_permissions.js', '/') . '.*?>/';
+		// 2018.12 JSファイルの置き場所がwebrootの下になった影響に対応
+		$pattern = '/<script.*?' . preg_quote('/js/rooms/role_permissions.js', '/') . '.*?>/';
 		$this->assertRegExp($pattern, $this->contents);
 
-		$pattern = '/<script.*?' . preg_quote('/rooms/js/room_role_permissions.js', '/') . '.*?>/';
+		// 2018.12 JSファイルの置き場所がwebrootの下になった影響に対応
+		$pattern = '/<script.*?' . preg_quote('/js/rooms/room_role_permissions.js', '/') . '.*?>/';
 		$this->assertRegExp($pattern, $this->contents);
 	}
 

@@ -36,6 +36,10 @@ table > tbody > tr > td .btn.btn-xs, .btn-xs.nc-btn-style.space-edit-rooms-roles
 	display: inline-block;
 	vertical-align: middle;
 }
+table > tbody > tr > td .rooms-index-updown-btn .btn.btn-xs {
+	margin-left: 0px;
+	margin-right: 5px;
+}
 
 /**
  * 参加者修正

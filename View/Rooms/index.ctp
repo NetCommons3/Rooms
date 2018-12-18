@@ -17,6 +17,8 @@ echo $this->NetCommonsHtml->css(array(
 
 echo $this->NetCommonsHtml->script('/rooms/js/rooms.js');
 
+$roomOrderList = $this->RoomsForm->getRoomOrderList($rooms);
+$jsRoomOrderList = NetCommonsAppController::camelizeKeyRecursive($roomOrderList);
 ?>
 
 <?php
@@ -40,7 +42,11 @@ echo $this->NetCommonsHtml->script('/rooms/js/rooms.js');
 ?>
 
 <?php if ($activeSpaceId !== Space::PRIVATE_SPACE_ID) : ?>
-	<article class="rooms-manager" ng-controller="RoomsController">
+	<article class="rooms-manager"
+             ng-controller="RoomsController"
+             ng-init="initialize(
+             <?php echo $activeSpaceId; ?>,
+             <?php echo h(json_encode($jsRoomOrderList)); ?>)">
 		<?php echo $this->Rooms->roomsRender($activeSpaceId,
 				array(
 					'dataElemen' => 'Rooms.Rooms/render_room_index',
