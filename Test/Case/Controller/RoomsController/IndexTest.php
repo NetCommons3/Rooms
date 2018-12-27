@@ -54,7 +54,8 @@ class RoomsControllerIndexTest extends RoomsControllerTestCase {
 
 		//チェック
 		$this->assertTextContains('<ul class="nav nav-tabs" role="tablist">', $this->view);
-		$this->assertTextContains('<article class="rooms-manager" ng-controller="RoomsController">', $this->view);
+		//$this->assertTextContains('<article class="rooms-manager" ng-controller="RoomsController" ng-init="initialize(', $this->view);
+		$this->assertRegExp('/<article([\s\t\n]+?)class="rooms-manager"([\s\t\n]+?)ng-controller="RoomsController"([\s\t\n]+?)ng-init="initialize.*?/', $this->view);
 		$this->assertTextContains('<table class="table">', $this->view);
 
 		//ログアウト

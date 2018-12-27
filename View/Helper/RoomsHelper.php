@@ -190,13 +190,37 @@ class RoomsHelper extends AppHelper {
 	}
 
 /**
+ * 上下ボタンタグを返す
+ *
+ * @param array $room ルーム情報
+ * @return string
+ */
+	protected function _getUpDownBtnTag($room) {
+		$btn = '<span class="text-nowrap rooms-index-updown-btn">' .
+			'<button type="button" class="btn btn-default btn-xs"' .
+			'ng-click="moveUp($event, ' . $room['Room']['id'] . ')"' .
+			'ng-disabled="isUpDisabled(' . $room['Room']['id'] . ')">' .
+			'<span class="glyphicon glyphicon-arrow-up"></span>' .
+			'</button>' .
+			'<button type="button" class="btn btn-default btn-xs"' .
+			'ng-click="moveDown($event, ' . $room['Room']['id'] . ')"' .
+			'ng-disabled="isDownDisabled(' . $room['Room']['id'] . ')">' .
+			'<span class="glyphicon glyphicon-arrow-down"></span>' .
+			'</button>' .
+			'</span>';
+		return $btn;
+	}
+
+/**
  * ルーム名の出力
  *
  * @param array $room ルームデータ配列
  * @param int|null $nest インデント
+ * @param bool $withBtn 上下操作ボタンをつけるか否か（ルーム管理での一覧画面でしか使用しない）
  * @return string HTML
+ * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  */
-	public function roomName($room, $nest = null) {
+	public function roomName($room, $nest = null, $withBtn = false) {
 		$name = '';
 		foreach ($room['RoomsLanguage'] as $item) {
 			if ($item['language_id'] == Current::read('Language.id')) {
@@ -208,6 +232,10 @@ class RoomsHelper extends AppHelper {
 		$output = '';
 		if (isset($nest)) {
 			$output .= str_repeat('<span class="rooms-tree"> </span>', $nest);
+		}
+
+		if ($withBtn) {
+			$output .= $this->_getUpDownBtnTag($room);
 		}
 		$output .= h($name);
 		return $output;

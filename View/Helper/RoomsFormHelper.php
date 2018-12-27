@@ -453,4 +453,31 @@ class RoomsFormHelper extends AppHelper {
 		return $html;
 	}
 
+/**
+ * ルーム管理一覧で使用する各ルームでの並び順情報
+ *
+ * @param array $rooms 一覧で表示するルーム情報配列
+ * @return array
+ */
+	public function getRoomOrderList($rooms) {
+		$roomOrderList = [];
+		$childCount = [];
+		foreach ($rooms as $room) {
+			if (isset($childCount[$room['Room']['parent_id']])) {
+				$childCount[$room['Room']['parent_id']]++;
+			} else {
+				$childCount[$room['Room']['parent_id']] = 1;
+			}
+			$roomOrderList[] = [
+				'room_id' => $room['Room']['id'],
+				'order' => $room['Room']['weight'],
+				'siblings' => 0,
+				'parent_id' => $room['Room']['parent_id']
+			];
+		}
+		foreach ($roomOrderList as &$roomOrder) {
+			$roomOrder['siblings'] = $childCount[$roomOrder['parent_id']];
+		}
+		return $roomOrderList;
+	}
 }

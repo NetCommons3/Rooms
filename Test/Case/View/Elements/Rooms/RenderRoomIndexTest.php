@@ -43,6 +43,14 @@ class RoomsViewElementsRoomsRenderRoomIndexTest extends NetCommonsControllerTest
 	public function setUp() {
 		parent::setUp();
 
+		// システムプラグインの使用可能なものにroomsプラグインを追加しておく
+		$pluginsRole = [
+			'id' => 2,
+			'role_key' => 'system_administrator',
+			'plugin_key' => 'rooms'
+		];
+		Current::$current['PluginsRole'][] = $pluginsRole;
+
 		//テストプラグインのロード
 		NetCommonsCakeTestCase::loadTestPlugin($this, 'Rooms', 'TestRooms');
 		//テストコントローラ生成

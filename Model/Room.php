@@ -24,6 +24,9 @@ App::uses('BlockSettingBehavior', 'Blocks.Model/Behavior');
  *
  * @author Shohei Nakajima <nakajimashouhei@gmail.com>
  * @package NetCommons\Rooms\Model
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class Room extends RoomsAppModel {
 
@@ -569,6 +572,38 @@ class Room extends RoomsAppModel {
 
 		} catch (Exception $ex) {
 			//トランザクションRollback
+			$this->rollback($ex);
+		}
+
+		return true;
+	}
+
+/**
+ * 移動
+ *
+ * @param array $room 移動させるルームデータ room_id, page_id_topは必須
+ * @param string $moveMethod 移動名（そのまま関数名 moveUp|moveDownのいずれか）
+ * @param int $moveStep 移動数
+ * @return bool
+ * @throws InternalErrorException
+ */
+	public function saveMove($room, $moveMethod, $moveStep = 1) {
+		//トランザクションBegin
+		$this->begin();
+
+		try {
+			$result = $this->$moveMethod($room['Room']['id'], $moveStep);
+			if (!$result) {
+				throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
+			}
+			$this->loadModels(array('Page' => 'Pages.Page'));
+			$result = $this->Page->$moveMethod($room['Room']['page_id_top'], $moveStep);
+			if (!$result) {
+				throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
+			}
+			$this->commit();
+
+		} catch (Exception $ex) {
 			$this->rollback($ex);
 		}
 

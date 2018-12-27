@@ -303,4 +303,33 @@ class RoomsController extends RoomsAppController {
 		$this->redirect('/rooms/rooms/index/' . $this->viewVars['activeSpaceId']);
 	}
 
+/**
+ * ルーム並べ替えアクション
+ *
+ * @return void
+ * @throws InternalErrorException
+ */
+	public function order() {
+		if (! $this->request->is('ajax')) {
+			return $this->throwBadRequest();
+		}
+
+		$room = Hash::get($this->viewVars, 'room', null);
+		if (! $room) {
+			return $this->throwBadRequest();
+		}
+
+		$moveMethod = Hash::get($this->params, 'named.dir');
+		if (! $moveMethod) {
+			return $this->throwBadRequest();
+		}
+
+		$return = $this->Room->saveMove($room, $moveMethod, 1);
+		if (!$return) {
+			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
+		}
+		$message = __d('net_commons', 'success');
+		$this->NetCommons->renderJson(['class' => 'success'], $message, 200);
+	}
+
 }

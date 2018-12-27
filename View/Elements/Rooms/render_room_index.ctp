@@ -10,11 +10,14 @@
  */
 ?>
 
-<tr class="<?php echo $this->Rooms->statusCss($room); ?>">
+<tr class="<?php echo $this->Rooms->statusCss($room); ?>"
+    data-parent="<?php echo $room['Room']['parent_id']; ?>"
+    data-room-id="<?php echo $room['Room']['id']; ?>">
+
 	<td>
 		<a href="" ng-click="showRoom(<?php echo $room['Space']['id'] . ', ' . $room['Room']['id']; ?>)">
 			<span class="rooms-index-room-name">
-				<?php echo $this->Rooms->roomName($room, $nest); ?>
+				<?php echo $this->Rooms->roomName($room, $nest, true); ?>
 			</span>
 		</a>
 		<span class="badge">
