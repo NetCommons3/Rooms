@@ -86,8 +86,12 @@ class RoomsAppController extends AppController {
 		$this->Auth->deny('index', 'view');
 
 		//スペースデータチェック
-		$spaceId = Hash::get($this->params['pass'], '0');
-		if (! $this->Room->Space->exists($spaceId)) {
+		if (isset($this->params['pass'][0])) {
+			$spaceId = $this->params['pass'][0];
+		} else {
+			$spaceId = null;
+		}
+		if (! $this->Room->Space->cacheExistsQuery($spaceId)) {
 			return $this->setAction('throwBadRequest');
 		}
 
@@ -135,7 +139,7 @@ class RoomsAppController extends AppController {
 	protected function _setParentRooms() {
 		$roomId = $this->viewVars['activeRoomId'];
 
-		$spaceRoomIds = $this->Space->find('list', [
+		$spaceRoomIds = $this->Space->cacheFindQuery('list', [
 			'recursive' => -1,
 			'fields' => ['id', 'room_id_root']
 		]);

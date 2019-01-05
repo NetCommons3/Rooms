@@ -84,58 +84,7 @@ class Space extends RoomsAppModel {
  * @var array
  */
 	public $actsAs = array(
-		'Tree',
-	);
-
-	//The Associations below have been created with all possible keys, those that are not needed can be removed
-
-/**
- * belongsTo associations
- *
- * @var array
- */
-	public $belongsTo = array(
-		'ParentSpace' => array(
-			'className' => 'Rooms.Space',
-			'foreignKey' => 'parent_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		)
-	);
-
-/**
- * hasMany associations
- *
- * @var array
- */
-	public $hasMany = array(
-		'Room' => array(
-			'className' => 'Rooms.Room',
-			'foreignKey' => 'space_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		),
-		'ChildSpace' => array(
-			'className' => 'Rooms.Space',
-			'foreignKey' => 'parent_id',
-			'dependent' => false,
-			'conditions' => '',
-			'fields' => '',
-			'order' => '',
-			'limit' => '',
-			'offset' => '',
-			'exclusive' => '',
-			'finderQuery' => '',
-			'counterQuery' => ''
-		)
+		'NetCommons.NetCommonsCache',
 	);
 
 /**
@@ -151,7 +100,7 @@ class Space extends RoomsAppModel {
 			'RoomsLanguage' => 'Rooms.RoomsLanguage',
 		]);
 
-		$result = $this->Room->create(Hash::merge(array(
+		$result = $this->Room->create(array_merge(array(
 			'id' => null,
 			'active' => true,
 		), $data));
@@ -205,7 +154,7 @@ class Space extends RoomsAppModel {
 		$Space = self::getInstance($spaceModel, $options);
 		if ($spaceModel === 'Space') {
 			if (! isset(self::$spaceIds['Space'])) {
-				$spaces = $Space->find('list', array(
+				$spaces = $Space->cacheFindQuery('list', array(
 					'recursive' => -1,
 					'fields' => array('id', 'room_id_root'),
 				));
@@ -260,8 +209,8 @@ class Space extends RoomsAppModel {
 	public static function getPageIdSpace($spaceId) {
 		$Space = ClassRegistry::init('Rooms.Space', true);
 
-		if (! Hash::get(self::$spaceIds, 'Page')) {
-			$spaces = $Space->find('list', array(
+		if (! isset(self::$spaceIds['Page'])) {
+			$spaces = $Space->cacheFindQuery('list', array(
 				'recursive' => -1,
 				'fields' => array('id', 'page_id_top'),
 			));
@@ -280,12 +229,13 @@ class Space extends RoomsAppModel {
 	public function getSpace($spaceId) {
 		$spaces = $this->getSpaces();
 
-		$space = Hash::extract($spaces, '{n}.' . $this->alias . '[id=' . $spaceId . ']');
-		if ($space) {
-			return $space[0];
-		} else {
-			return $space;
+		foreach ($spaces as $space) {
+			if ($spaceId == $space[$this->alias]['id']) {
+				return $space;
+			}
 		}
+
+		return [];
 	}
 
 /**
@@ -297,7 +247,7 @@ class Space extends RoomsAppModel {
 		if (self::$spaces) {
 			return self::$spaces;
 		}
-		self::$spaces = $this->find('all', array(
+		self::$spaces = $this->cacheFindQuery('all', array(
 			'recursive' => -1
 		));
 		return self::$spaces;
