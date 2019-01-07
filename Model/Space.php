@@ -231,7 +231,7 @@ class Space extends RoomsAppModel {
 
 		foreach ($spaces as $space) {
 			if ($spaceId == $space[$this->alias]['id']) {
-				return $space;
+				return $space[$this->alias];
 			}
 		}
 
