@@ -67,6 +67,7 @@ class SwitchBoxes extends NetCommonsMigration {
 		'Room' => array(
 			//サイト全体
 			array(
+				'id' => '4',
 				'space_id' => '1',
 				'page_id_top' => null,
 				'root_id' => null,
