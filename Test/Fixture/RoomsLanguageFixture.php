@@ -52,7 +52,7 @@ class RoomsLanguageFixture extends CakeTestFixture {
  */
 	public function init() {
 		require_once App::pluginPath('Rooms') . 'Config' . DS . 'Schema' . DS . 'schema.php';
-		$this->fields = (new RoomsSchema())->tables['ooms_languages'];
+		$this->fields = (new RoomsSchema())->tables['rooms_languages'];
 		parent::init();
 	}
 
