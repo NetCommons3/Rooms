@@ -225,8 +225,14 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 		$model->loadModels([
 			'RolesRoom' => 'Rooms.RolesRoom',
 			'PluginsRoom' => 'PluginManager.PluginsRoom',
-			//'PluginsSpace' => 'PluginManager.PluginsSpace',
+			'Space' => 'Rooms.Space',
 		]);
+
+		$space = $model->Space->getSpace($data['Room']['space_id']);
+		if (! empty($space['after_user_save_model'])) {
+			return true;
+		}
+
 		$db = $model->getDataSource();
 
 		//多数のデータを一括で登録するためINSERT INTO ... SELECTを使う。
