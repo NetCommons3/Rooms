@@ -72,7 +72,7 @@ class RolesRoomsUser extends RoomsAppModel {
  * @see Model::save()
  */
 	public function beforeValidate($options = array()) {
-		$this->validate = Hash::merge($this->validate, array(
+		$this->validate = ValidateMerge::merge($this->validate, array(
 			'roles_room_id' => array(
 				'numeric' => array(
 					'rule' => array('numeric'),

@@ -187,7 +187,7 @@ class Room extends RoomsAppModel {
  * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  */
 	public function beforeValidate($options = array()) {
-		$this->validate = Hash::merge($this->validate, array(
+		$this->validate = ValidateMerge::merge($this->validate, array(
 			'space_id' => array(
 				'numeric' => array(
 					'rule' => array('numeric'), 'required' => true,
