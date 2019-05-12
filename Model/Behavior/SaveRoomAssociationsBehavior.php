@@ -379,6 +379,7 @@ class SaveRoomAssociationsBehavior extends ModelBehavior {
 		$model->Page->create(false);
 		$page = $model->Page->savePage($page, array('atomic' => false));
 		if (! $page) {
+			CakeLog::error(var_export($model->Page->validationErrors, true));
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 		}
 		if (! $model->Room->updateAll(
