@@ -175,7 +175,6 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 
 			$sql = 'DELETE FROM ' . $tableName .
 					' WHERE ' . $field . ' IN (' . implode(', ', $targets) . ')';
-			CakeLog::info('[room deleting] ' . $sql);
 			$model->query($sql);
 		}
 
