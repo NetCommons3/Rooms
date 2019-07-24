@@ -43,11 +43,12 @@ class RoomsFormComponent extends Component {
  * @param array $conditions findのconditionsオプション
  * @return void
  */
-	public function setRoomsForCheckbox($conditions = array()) {
+    public function setRoomsForCheckbox($conditions = array(), $options=array()) {
 		$controller = $this->controller;
 
 		//ルームデータ取得
-		$controller->Paginator->settings = $controller->Room->getReadableRoomsConditions($conditions);
+		$controller->Paginator->settings =
+			Hash::merge($controller->Room->getReadableRoomsConditions($conditions), $options);
 		$rooms = $controller->Paginator->paginate('Room');
 		$rooms = Hash::combine($rooms, '{n}.Room.id', '{n}');
 		$controller->set('rooms', $rooms);
