@@ -165,7 +165,11 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 			$targets = array($db->value($value, 'string'));
 		}
 
-		$tables = $model->query('SHOW TABLES');
+		// FIXME: ほんとはscheme.phpをみて対象となるテーブルだけを対象に削除したほうがいい
+		//        この削除だとNC3を1DBに同居させたときにPREFIXなしのNC3があるとPREFIX有りNC3のテーブルまで削除対象となる問題がある
+		$prefix = $db->config['prefix'];
+
+		$tables = $model->query("SHOW TABLES LIKE '{$prefix}%'");
 		foreach ($tables as $table) {
 			$tableName = array_shift($table['TABLE_NAMES']);
 			$columns = $model->query('SHOW COLUMNS FROM ' . $tableName);
@@ -175,11 +179,9 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 
 			$sql = 'DELETE FROM ' . $tableName .
 					' WHERE ' . $field . ' IN (' . implode(', ', $targets) . ')';
-			CakeLog::info('[room deleting] ' . $sql);
 			$model->query($sql);
 		}
 
 		return true;
 	}
-
 }
