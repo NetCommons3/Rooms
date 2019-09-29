@@ -202,6 +202,7 @@ class RoomsRolesUsersControllerEditTest extends RoomsControllerTestCase {
 		//テスト実行
 		$data = $this->__dataSave();
 
+		$this->_mockRoomsComponent();
 		$this->_mockForReturnFalse('Rooms.RolesRoomsUser', 'saveRolesRoomsUsersForRooms');
 		$this->_testPostAction('put', $data,
 				array('action' => 'edit', $spaceId, $roomId, '?' => array('search' => '1')), null, 'view');

@@ -79,8 +79,8 @@ class RoomsViewElementsRoomsEditFormTest extends NetCommonsControllerTestCase {
 		$this->assertRegExp($pattern, $this->view);
 
 		$this->__assertEditForm($roomId);
-		$this->assertInput('input', 'data[RoomsLanguage][0][id]', '11', $this->view);
-		$this->assertInput('input', 'data[RoomsLanguage][1][id]', '12', $this->view);
+		$this->assertInput('input', 'data[RoomsLanguage][0][id]', '12', $this->view);
+		$this->assertInput('input', 'data[RoomsLanguage][1][id]', '11', $this->view);
 		$this->assertInput('option', 'general_user', 'selected', $this->view);
 		$this->assertInput('option', 'visitor', '', $this->view);
 		$this->assertInput('option', '0', 'selected', $this->view);
@@ -103,8 +103,8 @@ class RoomsViewElementsRoomsEditFormTest extends NetCommonsControllerTestCase {
 		$this->assertRegExp($pattern, $this->view);
 
 		$this->__assertEditForm($roomId);
-		$this->assertInput('input', 'data[RoomsLanguage][0][id]', '7', $this->view);
-		$this->assertInput('input', 'data[RoomsLanguage][1][id]', '8', $this->view);
+		$this->assertInput('input', 'data[RoomsLanguage][0][id]', '8', $this->view);
+		$this->assertInput('input', 'data[RoomsLanguage][1][id]', '7', $this->view);
 		$this->assertInput('option', 'general_user', '', $this->view);
 		$this->assertInput('option', 'visitor', 'selected', $this->view);
 		$this->assertInput('option', '0', '', $this->view);

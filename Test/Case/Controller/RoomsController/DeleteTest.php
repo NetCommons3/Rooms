@@ -80,6 +80,7 @@ class RoomsControllerDeleteTest extends RoomsControllerTestCase {
  * @return void
  */
 	public function testDeletePost() {
+		$this->_mockRoomsComponent();
 		$this->_mockForReturnTrue('Rooms.Room', 'deleteRoom');
 
 		//テスト実行
@@ -98,6 +99,7 @@ class RoomsControllerDeleteTest extends RoomsControllerTestCase {
  * @return void
  */
 	public function testDeletePostSaveError() {
+		$this->_mockRoomsComponent();
 		$this->_mockForReturnFalse('Rooms.Room', 'deleteRoom');
 
 		//テスト実行

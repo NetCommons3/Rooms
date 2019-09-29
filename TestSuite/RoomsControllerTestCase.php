@@ -11,6 +11,7 @@
 
 //@codeCoverageIgnoreStart;
 App::uses('NetCommonsControllerTestCase', 'NetCommons.TestSuite');
+App::uses('RoomsMockMethods', 'Rooms.TestSuite');
 //@codeCoverageIgnoreEnd;
 
 /**
@@ -62,6 +63,13 @@ abstract class RoomsControllerTestCase extends NetCommonsControllerTestCase {
 	public $plugin = 'rooms';
 
 /**
+ * RoomsのMocksメソッドクラス
+ *
+ * @var RoomsMockMethods
+ */
+	private $__RoomsMockMethods;
+
+/**
  * Fixtures load
  *
  * @param string $name The name parameter on PHPUnit_Framework_TestCase::__construct()
@@ -75,6 +83,26 @@ abstract class RoomsControllerTestCase extends NetCommonsControllerTestCase {
 		}
 		$this->fixtures = array_merge($this->__fixtures, $this->fixtures);
 		parent::__construct($name, $data, $dataName);
+
+		$this->__RoomsMockMethods = new RoomsMockMethods();
+	}
+
+/**
+ * RoomsコンポーネントをMockに差し替える
+ *
+ * @return void
+ */
+	protected function _mockRoomsComponent() {
+		$this->__RoomsMockMethods->mockRoomsComponent($this, $this->_controller);
+	}
+
+/**
+ * PermissionコンポーネントをMockに差し替える
+ *
+ * @return void
+ */
+	protected function _mockPermissionComponent() {
+		$this->__RoomsMockMethods->mockPermissionComponent($this, $this->_controller);
 	}
 
 }
