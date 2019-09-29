@@ -69,12 +69,18 @@ class RoomBehaviorGetSpacesTest extends NetCommonsModelTestCase {
 		$this->assertArrayHasKey('RoomsLanguage', Hash::get($result, $spaceId));
 		$this->assertCount(2, $result[$spaceId]['RoomsLanguage']);
 		$this->assertEquals(
-			array('id', 'language_id', 'room_id', 'name'), array_keys(Hash::get($result, $spaceId . '.RoomsLanguage.0'))
+			array(
+				'id', 'language_id', 'is_origin', 'is_translation', 'is_original_copy', 'room_id', 'name'
+			),
+			array_keys(Hash::get($result, $spaceId . '.RoomsLanguage.0'))
 		);
 		$this->assertEquals($roomId, Hash::get($result, $spaceId . '.RoomsLanguage.0.room_id'));
 		$this->assertNotEmpty(Hash::get($result, $spaceId . '.RoomsLanguage.0.name'));
 		$this->assertEquals(
-			array('id', 'language_id', 'room_id', 'name'), array_keys(Hash::get($result, $spaceId . '.RoomsLanguage.1'))
+			array(
+				'id', 'language_id', 'is_origin', 'is_translation', 'is_original_copy', 'room_id', 'name'
+			),
+			array_keys(Hash::get($result, $spaceId . '.RoomsLanguage.1'))
 		);
 		$this->assertEquals($roomId, Hash::get($result, $spaceId . '.RoomsLanguage.1.room_id'));
 		$this->assertNotEmpty(Hash::get($result, $spaceId . '.RoomsLanguage.1.name'));

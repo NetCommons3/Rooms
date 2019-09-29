@@ -263,13 +263,13 @@ class RoomsControllerEditTest extends RoomsControllerTestCase {
 				0 => array(
 					'id' => '1',
 					'room_id' => $roomId,
-					'language_id' => '2',
+					'language_id' => '1',
 					'name' => $name
 				),
 				1 => array(
 					'id' => '2',
 					'room_id' => $roomId,
-					'language_id' => '1',
+					'language_id' => '2',
 					'name' => $name
 				),
 			),

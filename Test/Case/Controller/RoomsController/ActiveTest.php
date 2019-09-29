@@ -78,6 +78,7 @@ class RoomsControllerActiveTest extends RoomsControllerTestCase {
  * @return void
  */
 	public function testActivePost() {
+		$this->_mockRoomsComponent();
 		$this->_mockForReturnTrue('Rooms.Room', 'saveActive');
 
 		//テスト実行
@@ -96,6 +97,7 @@ class RoomsControllerActiveTest extends RoomsControllerTestCase {
  * @return void
  */
 	public function testActivePostSaveError() {
+		$this->_mockRoomsComponent();
 		$this->_mockForReturnFalse('Rooms.Room', 'saveActive');
 
 		//テスト実行

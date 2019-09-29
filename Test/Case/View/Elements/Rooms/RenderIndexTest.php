@@ -10,6 +10,7 @@
  */
 
 App::uses('NetCommonsControllerTestCase', 'NetCommons.TestSuite');
+App::uses('RoomsMockMethods', 'Rooms.TestSuite');
 
 /**
  * View/Elements/Rooms/render_indexのテスト
@@ -53,8 +54,10 @@ class RoomsViewElementsRoomsRenderIndexTest extends NetCommonsControllerTestCase
 
 		//テストプラグインのロード
 		NetCommonsCakeTestCase::loadTestPlugin($this, 'Rooms', 'TestRooms');
+
 		//テストコントローラ生成
-		$this->generateNc('TestRooms.TestViewElementsRoomsRenderIndex');
+		$RoomsMockMethods = new RoomsMockMethods();
+		$RoomsMockMethods->mockPermissionComponent($this, 'TestRooms.TestViewElementsRoomsRenderIndex');
 	}
 
 /**
