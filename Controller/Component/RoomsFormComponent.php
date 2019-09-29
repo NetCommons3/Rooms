@@ -41,9 +41,10 @@ class RoomsFormComponent extends Component {
  * RoomsFormHelper::checkboxRooms()のためデータをセット
  *
  * @param array $conditions findのconditionsオプション
+ * @param array $options findのオプション
  * @return void
  */
-    public function setRoomsForCheckbox($conditions = array(), $options=array()) {
+	public function setRoomsForCheckbox($conditions = array(), $options = array()) {
 		$controller = $this->controller;
 
 		//ルームデータ取得
