@@ -10,6 +10,8 @@
  */
 
 App::uses('NetCommonsModelTestCase', 'NetCommons.TestSuite');
+App::uses('CurrentLibUser', 'NetCommons.Lib');
+App::uses('UserRole', 'UserRoles.Model');
 
 /**
  * RoomBehavior::getReadableRoomsConditions()のテスト
@@ -25,6 +27,7 @@ class RoomBehaviorGetReadableRoomsConditionsTest extends NetCommonsModelTestCase
  * @var array
  */
 	public $fixtures = array(
+		'plugin.rooms.plugins_role4test',
 		'plugin.rooms.roles_room4test',
 		'plugin.rooms.roles_rooms_user4test',
 		'plugin.rooms.room4test',
@@ -55,16 +58,62 @@ class RoomBehaviorGetReadableRoomsConditionsTest extends NetCommonsModelTestCase
 	}
 
 /**
+ * ログイン処理
+ *
+ * @return void
+ */
+	private function __loginWithoutPrivateRoom() {
+		$user = [
+			'id' => '1',
+			'role_key' => UserRole::USER_ROLE_KEY_SYSTEM_ADMINISTRATOR,
+		];
+		$this->__login($user);
+	}
+
+/**
+ * ログイン処理
+ *
+ * @return void
+ */
+	private function __loginWithPrivateRoom() {
+		$user = [
+			'id' => '1',
+			'role_key' => UserRole::USER_ROLE_KEY_SYSTEM_ADMINISTRATOR,
+			'UserRoleSetting' => [
+				'use_private_room' => true,
+			],
+		];
+		$this->__login($user);
+		CurrentLib::write('User.UserRoleSetting.use_private_room', true);
+	}
+
+/**
+ * ログイン処理
+ *
+ * @param array $user ユーザ情報
+ * @return void
+ */
+	private function __login($user) {
+		$userLibInstance = CurrentLibUser::getInstance();
+
+		$reflectionClass = new ReflectionClass('CurrentLibUser');
+		$property = $reflectionClass->getProperty('__user');
+		$property->setAccessible(true);
+		$property->setValue($userLibInstance, $user);
+
+		CurrentLib::write('User.id', '1');
+		CurrentLib::write('User.role_key', UserRole::USER_ROLE_KEY_SYSTEM_ADMINISTRATOR);
+	}
+
+/**
  * getReadableRoomsConditions()のテスト
  *
  * @return void
  */
 	public function testGetReadableRoomsConditions() {
 		//テストデータ
-		Current::$current = Hash::insert(Current::$current, 'User.id', '1');
-		Current::$current = Hash::insert(Current::$current, 'User.role_key', UserRole::USER_ROLE_KEY_SYSTEM_ADMINISTRATOR);
-		Current::$current = Hash::insert(Current::$current, 'User.UserRoleSetting.use_private_room', true);
-		Current::$current = Hash::insert(Current::$current, 'PluginsRole.0.plugin_key', 'rooms');
+		$this->__loginWithPrivateRoom();
+		CurrentLib::write('PluginsRole.0.plugin_key', 'rooms');
 		$conditions = array();
 
 		//テスト実施
@@ -88,9 +137,8 @@ class RoomBehaviorGetReadableRoomsConditionsTest extends NetCommonsModelTestCase
  */
 	public function testGetReadableRoomsConditionsWOPrivateRoom() {
 		//テストデータ
-		Current::$current = Hash::insert(Current::$current, 'User.id', '1');
-		Current::$current = Hash::insert(Current::$current, 'User.role_key', UserRole::USER_ROLE_KEY_SYSTEM_ADMINISTRATOR);
-		Current::$current = Hash::insert(Current::$current, 'PluginsRole.0.plugin_key', 'rooms');
+		$this->__loginWithoutPrivateRoom();
+		CurrentLib::write('PluginsRole.0.plugin_key', 'rooms');
 		$conditions = array();
 
 		//テスト実施
@@ -113,10 +161,8 @@ class RoomBehaviorGetReadableRoomsConditionsTest extends NetCommonsModelTestCase
  */
 	public function testGetReadableRoomsConditionsWithConditions() {
 		//テストデータ
-		Current::$current = Hash::insert(Current::$current, 'User.id', '1');
-		Current::$current = Hash::insert(Current::$current, 'User.role_key', UserRole::USER_ROLE_KEY_SYSTEM_ADMINISTRATOR);
-		Current::$current = Hash::insert(Current::$current, 'User.UserRoleSetting.use_private_room', true);
-		Current::$current = Hash::insert(Current::$current, 'PluginsRole.0.plugin_key', 'rooms');
+		$this->__loginWithPrivateRoom();
+		CurrentLib::write('PluginsRole.0.plugin_key', 'rooms');
 		$conditions = array(
 			'Room.space_id' => '3'
 		);
