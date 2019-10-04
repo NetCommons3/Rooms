@@ -40,9 +40,6 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 		$rolesRoomIds = array_keys($rolesRoomIds);
 		$this->queryDeleteAll($model, 'roles_room_id', $rolesRoomIds);
 
-		//外部キーがroom_idのデータを削除
-		$this->queryDeleteAll($model, 'room_id', $roomId);
-
 		return true;
 	}
 
@@ -70,12 +67,10 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 		$pageIds = array_keys($pageIds);
 
 		//Tree構成の関係で、ページの削除はdeleteAllでやる
-		CakeLog::info('[room deleting] Page->deleteAll ' . implode(', ', $pageIds));
 		if (!$model->Page->deleteAll(array($model->Page->alias . '.id' => $pageIds), false)) {
+			CakeLog::error('[room deleting] Page->deleteAll ' . implode(', ', $pageIds));
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 		}
-
-		$this->queryDeleteAll($model, 'page_id', $pageIds);
 
 		return true;
 	}
@@ -100,13 +95,10 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 			),
 		));
 		$frameIds = array_keys($frames);
-		$frameKeys = array_values($frames);
-
-		//外部キーがframe_idのデータを削除
-		$this->queryDeleteAll($model, 'frame_id', $frameIds);
-
-		//外部キーがframe_keyのデータを削除
-		$this->queryDeleteAll($model, 'frame_key', array_unique($frameKeys));
+		if (!$model->Frame->deleteAll(array($model->Frame->alias . '.id' => $frameIds), false)) {
+			CakeLog::error('[room deleting] Frame->deleteAll ' . implode(', ', $frameIds));
+			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
+		}
 
 		return true;
 	}
@@ -131,13 +123,10 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 			),
 		));
 		$blockIds = array_keys($blocks);
-		$blockKeys = array_values($blocks);
-
-		//外部キーがblock_idのデータを削除
-		$this->queryDeleteAll($model, 'block_id', $blockIds);
-
-		//外部キーがblock_keyのデータを削除
-		$this->queryDeleteAll($model, 'block_key', array_unique($blockKeys));
+		if (!$model->Block->deleteAll(array($model->Block->alias . '.id' => $blockIds), false)) {
+			CakeLog::error('[room deleting] Block->deleteAll ' . implode(', ', $blockIds));
+			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
+		}
 
 		return true;
 	}
