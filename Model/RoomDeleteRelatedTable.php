@@ -47,9 +47,6 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 			'id' => ['*.frame_id'],
 			'key' => ['*.frame_key'],
 		],
-		'roles_rooms' => [
-			'id' => ['*.roles_room_id'],
-		],
 	];
 
 /**
@@ -61,7 +58,6 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 	public function insertByRoomId($roomId) {
 		$this->loadModels([
 			'Room' => 'Rooms.Room',
-			'RolesRoom' => 'Rooms.RolesRoom',
 			'Page' => 'Pages.Page',
 			'Frame' => 'Frames.Frame',
 			'Block' => 'Blocks.Block',
@@ -72,7 +68,6 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 			$this->Page->table,
 			$this->Frame->table,
 			$this->Block->table,
-			$this->RolesRoom->table,
 		];
 
 		//トランザクションBegin

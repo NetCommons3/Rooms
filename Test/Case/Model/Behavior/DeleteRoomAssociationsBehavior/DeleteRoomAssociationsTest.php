@@ -28,6 +28,7 @@ class DeleteRoomAssociationsBehaviorDeleteRoomAssociationsTest extends NetCommon
 		'plugin.rooms.plugins_room4test',
 		'plugin.rooms.roles_room4test',
 		'plugin.rooms.room_role_permission4test',
+		'plugin.rooms.room_delete_related_table',
 	);
 
 /**
@@ -49,7 +50,6 @@ class DeleteRoomAssociationsBehaviorDeleteRoomAssociationsTest extends NetCommon
 		NetCommonsCakeTestCase::loadTestPlugin($this, 'Rooms', 'TestRooms');
 		$this->TestModel = ClassRegistry::init('TestRooms.TestDeleteRoomAssociationsBehaviorModel');
 		$this->TestModel->RoomRolePermission = ClassRegistry::init('Rooms.RoomRolePermission');
-		$this->TestModel->PluginsRoom = ClassRegistry::init('PluginManager.PluginsRoom');
 	}
 
 /**
@@ -74,13 +74,12 @@ class DeleteRoomAssociationsBehaviorDeleteRoomAssociationsTest extends NetCommon
  * @dataProvider dataProvider
  * @return void
  */
-	public function testDeleteRoomAssociations($roomId) {
+	public function testDeleteRolesRoomByRoom($roomId) {
 		//事前チェック
 		$this->__assertTable('RoomRolePermission', 29, array('id', 'roles_room_id'));
-		$this->__assertTable('PluginsRoom', 7, array('id', 'room_id'));
 
 		//テスト実施
-		$result = $this->TestModel->deleteRoomAssociations($roomId);
+		$result = $this->TestModel->deleteRolesRoomByRoom($roomId);
 		$this->assertTrue($result);
 
 		//チェック
@@ -103,14 +102,6 @@ class DeleteRoomAssociationsBehaviorDeleteRoomAssociationsTest extends NetCommon
 			array('RoomRolePermission' => array('id' => '80', 'roles_room_id' => '20')),
 			array('RoomRolePermission' => array('id' => '81', 'roles_room_id' => '20')),
 			array('RoomRolePermission' => array('id' => '82', 'roles_room_id' => '20')),
-		));
-
-		$this->__assertTable('PluginsRoom', 5, array('id', 'room_id'), array(
-			array('PluginsRoom' => array('id' => '1', 'room_id' => '1')),
-			array('PluginsRoom' => array('id' => '2', 'room_id' => '1')),
-			array('PluginsRoom' => array('id' => '3', 'room_id' => '2')),
-			array('PluginsRoom' => array('id' => '4', 'room_id' => '2')),
-			array('PluginsRoom' => array('id' => '7', 'room_id' => '3')),
 		));
 	}
 

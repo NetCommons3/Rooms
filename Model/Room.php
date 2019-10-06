@@ -423,6 +423,10 @@ class Room extends RoomsAppModel {
  * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  */
 	public function beforeDelete($cascade = true) {
+		$this->loadModels([
+			'RoomDeleteRelatedTable' => 'Rooms.RoomDeleteRelatedTable',
+		]);
+
 		$children = $this->children($this->id, false, 'Room.id', 'Room.rght');
 		$this->_childRoomIds = [];
 		foreach ($children as $room) {
@@ -434,6 +438,9 @@ class Room extends RoomsAppModel {
 		foreach ($deleteRoomIds as $childRoomId) {
 			//ルーム削除情報を登録する
 			$this->RoomDeleteRelatedTable->insertByRoomId($childRoomId);
+
+			//roles_roomsデータ削除
+			$this->deleteRolesRoomByRoom($childRoomId);
 
 			//frameデータの削除
 			$this->deleteFramesByRoom($childRoomId);
@@ -623,7 +630,6 @@ class Room extends RoomsAppModel {
 	public function deleteRoom($data) {
 		$this->loadModels([
 			'RoomsLanguage' => 'Rooms.RoomsLanguage',
-			'RoomDeleteRelatedTable' => 'Rooms.RoomDeleteRelatedTable',
 		]);
 
 		//トランザクションBegin

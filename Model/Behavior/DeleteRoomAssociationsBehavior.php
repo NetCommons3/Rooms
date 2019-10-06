@@ -20,13 +20,14 @@ App::uses('ModelBehavior', 'Model');
 class DeleteRoomAssociationsBehavior extends ModelBehavior {
 
 /**
- * 外部キーにroom_idおよびrole_room_idがあるテーブルのデータ削除
+ * 外部キーにrole_room_idがあるテーブルのデータ削除
  *
  * @param Model $model ビヘイビア呼び出し元モデル
  * @param int $roomId ルームID
  * @return bool True on success
+ * @throws InternalErrorException
  */
-	public function deleteRoomAssociations(Model $model, $roomId) {
+	public function deleteRolesRoomByRoom(Model $model, $roomId) {
 		//外部キーがrole_room_idのデータを削除
 		$model->loadModels([
 			'RolesRoom' => 'Rooms.RolesRoom',
@@ -37,8 +38,14 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 				$model->RolesRoom->alias . '.room_id' => $roomId,
 			),
 		));
+
 		$rolesRoomIds = array_keys($rolesRoomIds);
 		$this->queryDeleteAll($model, 'roles_room_id', $rolesRoomIds);
+
+		if (!$model->RolesRoom->deleteAll([$model->RolesRoom->alias . '.id' => $rolesRoomIds], false)) {
+			CakeLog::error('[room deleting] RolesRoom->deleteAll ' . implode(', ', $rolesRoomIds));
+			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
+		}
 
 		return true;
 	}
@@ -81,6 +88,7 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
  * @param Model $model ビヘイビア呼び出し元モデル
  * @param int $roomId ルームID
  * @return bool True on success
+ * @throws InternalErrorException
  */
 	public function deleteFramesByRoom(Model $model, $roomId) {
 		$model->loadModels([
@@ -109,6 +117,7 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
  * @param Model $model ビヘイビア呼び出し元モデル
  * @param int $roomId ルームID
  * @return bool True on success
+ * @throws InternalErrorException
  */
 	public function deleteBlocksByRoom(Model $model, $roomId) {
 		$model->loadModels([

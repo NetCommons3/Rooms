@@ -27,6 +27,7 @@ class DeleteRoomAssociationsBehaviorDeletePagesByRoomTest extends NetCommonsMode
 	public $fixtures = array(
 		'plugin.rooms.page4delete',
 		'plugin.rooms.delete_test_page_id',
+		'plugin.rooms.room_delete_related_table',
 	);
 
 /**
@@ -47,7 +48,7 @@ class DeleteRoomAssociationsBehaviorDeletePagesByRoomTest extends NetCommonsMode
 		//テストプラグインのロード
 		NetCommonsCakeTestCase::loadTestPlugin($this, 'Rooms', 'TestRooms');
 		$this->TestModel = ClassRegistry::init('TestRooms.TestDeleteRoomAssociationsBehaviorModel');
-		$this->TestModel->DeleteTestPageId = ClassRegistry::init('TestRooms.DeleteTestPageId');
+		$this->Page = ClassRegistry::init('Pages.Page');
 	}
 
 /**
@@ -74,16 +75,14 @@ class DeleteRoomAssociationsBehaviorDeletePagesByRoomTest extends NetCommonsMode
  */
 	public function testDeletePagesByRoom($roomId) {
 		//事前チェック
-		$this->__assertTable('DeleteTestPageId', 3, array('id', 'page_id'));
+		$this->__assertTable('Page', 3);
 
 		//テスト実施
 		$result = $this->TestModel->deletePagesByRoom($roomId);
 		$this->assertTrue($result);
 
 		//チェック
-		$this->__assertTable('DeleteTestPageId', 1, array('id', 'page_id'), array(
-			array('DeleteTestPageId' => array('id' => '1', 'page_id' => '1')),
-		));
+		$this->__assertTable('Page', 1);
 	}
 
 /**
@@ -97,7 +96,7 @@ class DeleteRoomAssociationsBehaviorDeletePagesByRoomTest extends NetCommonsMode
 		$this->_mockForReturnFalse('TestModel', 'Pages.Page', 'deleteAll');
 
 		//事前チェック
-		$this->__assertTable('DeleteTestPageId', 3, array('id', 'page_id'));
+		$this->__assertTable('Page', 3);
 
 		//テスト実施
 		$this->setExpectedException('InternalErrorException');
@@ -109,20 +108,13 @@ class DeleteRoomAssociationsBehaviorDeletePagesByRoomTest extends NetCommonsMode
  *
  * @param string $model Model名
  * @param int $count データ件数
- * @param array $fields フィールド名
- * @param array $expected 期待値
  * @return void
  */
-	private function __assertTable($model, $count, $fields, $expected = null) {
-		$result = $this->TestModel->$model->find('all', array(
+	private function __assertTable($model, $count) {
+		$result = $this->$model->find('count', array(
 			'recursive' => -1,
-			'fields' => $fields,
 		));
-		$this->assertCount($count, $result);
-
-		if (isset($expected)) {
-			$this->assertEquals($expected, $result);
-		}
+		$this->assertEquals($count, $result);
 	}
 
 }
