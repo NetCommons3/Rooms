@@ -32,6 +32,7 @@ class RoomDeleteTest extends NetCommonsModelTestCase {
 		'plugin.rooms.room_role_permission',
 		'plugin.rooms.rooms_language4test',
 		'plugin.rooms.space',
+		'plugin.rooms.room_delete_related_table',
 	);
 
 /**
@@ -66,12 +67,12 @@ class RoomDeleteTest extends NetCommonsModelTestCase {
 
 		//データ生成
 		$this->$model = $this->getMockForModel('Rooms.Room', array(
-			'deleteFramesByRoom', 'deletePagesByRoom', 'deleteBlocksByRoom', 'deleteRoomAssociations'
+			'deleteFramesByRoom', 'deletePagesByRoom', 'deleteBlocksByRoom', 'deleteRolesRoomByRoom'
 		));
 		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteFramesByRoom', 4);
 		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deletePagesByRoom', 4);
 		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteBlocksByRoom', 4);
-		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteRoomAssociations', 4);
+		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteRolesRoomByRoom', 4);
 
 		//事前チェック
 		$roomIds = array('2', '5', '6', '9');

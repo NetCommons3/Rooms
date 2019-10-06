@@ -32,6 +32,7 @@ class RoomDeleteRoomTest extends NetCommonsDeleteTest {
 		'plugin.rooms.room_role_permission',
 		'plugin.rooms.rooms_language4test',
 		'plugin.rooms.space',
+		'plugin.rooms.room_delete_related_table',
 	);
 
 /**
@@ -85,12 +86,12 @@ class RoomDeleteRoomTest extends NetCommonsDeleteTest {
 	public function testDelete($data, $associationModels = null) {
 		$model = $this->_modelName;
 		$this->$model = $this->getMockForModel('Rooms.Room', array(
-			'deleteFramesByRoom', 'deletePagesByRoom', 'deleteBlocksByRoom', 'deleteRoomAssociations'
+			'deleteFramesByRoom', 'deletePagesByRoom', 'deleteBlocksByRoom', 'deleteRolesRoomByRoom'
 		));
 		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteFramesByRoom', 4);
 		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deletePagesByRoom', 4);
 		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteBlocksByRoom', 4);
-		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteRoomAssociations', 4);
+		$this->_mockForReturnTrue($model, 'Rooms.Room', 'deleteRolesRoomByRoom', 4);
 
 		//テスト実施
 		parent::testDelete($data, $associationModels);

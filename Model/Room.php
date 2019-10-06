@@ -2,11 +2,6 @@
 /**
  * Room Model
  *
- * @property Space $Space
- * @property Room $ParentRoom
- * @property Room $ChildRoom
- * @property Language $Language
- *
  * @author Noriko Arai <arai@nii.ac.jp>
  * @author Shohei Nakajima <nakajimashouhei@gmail.com>
  * @link http://www.netcommons.org NetCommons Project
@@ -21,6 +16,12 @@ App::uses('BlockSettingBehavior', 'Blocks.Model/Behavior');
 
 /**
  * Room Model
+ *
+ * @property Space $Space
+ * @property Room $ParentRoom
+ * @property Room $ChildRoom
+ * @property Language $Language
+ * @property RoomDeleteRelatedTable $RoomDeleteRelatedTable
  *
  * @author Shohei Nakajima <nakajimashouhei@gmail.com>
  * @package NetCommons\Rooms\Model
@@ -422,12 +423,25 @@ class Room extends RoomsAppModel {
  * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  */
 	public function beforeDelete($cascade = true) {
+		$this->loadModels([
+			'RoomDeleteRelatedTable' => 'Rooms.RoomDeleteRelatedTable',
+		]);
+
 		$children = $this->children($this->id, false, 'Room.id', 'Room.rght');
-		$this->_childRoomIds = Hash::extract($children, '{n}.Room.id');
+		$this->_childRoomIds = [];
+		foreach ($children as $room) {
+			$this->_childRoomIds[] = $room['Room']['id'];
+		}
 		$deleteRoomIds = $this->_childRoomIds;
 		$deleteRoomIds[] = $this->id;
 
 		foreach ($deleteRoomIds as $childRoomId) {
+			//ルーム削除情報を登録する
+			$this->RoomDeleteRelatedTable->insertByRoomId($childRoomId);
+
+			//roles_roomsデータ削除
+			$this->deleteRolesRoomByRoom($childRoomId);
+
 			//frameデータの削除
 			$this->deleteFramesByRoom($childRoomId);
 
@@ -455,11 +469,6 @@ class Room extends RoomsAppModel {
 		//子Roomデータの削除
 		if (! $this->deleteAll(array($this->alias . '.id' => $this->_childRoomIds), false)) {
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
-		}
-
-		//Roomの関連データの削除
-		foreach ($deleteRoomIds as $childRoomId) {
-			$this->deleteRoomAssociations($childRoomId);
 		}
 	}
 

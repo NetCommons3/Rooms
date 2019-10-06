@@ -49,8 +49,7 @@ class DeleteRoomAssociationsBehaviorDeleteBlocksByRoomTest extends NetCommonsMod
 		//テストプラグインのロード
 		NetCommonsCakeTestCase::loadTestPlugin($this, 'Rooms', 'TestRooms');
 		$this->TestModel = ClassRegistry::init('TestRooms.TestDeleteRoomAssociationsBehaviorModel');
-		$this->TestModel->DeleteTestBlockId = ClassRegistry::init('TestRooms.DeleteTestBlockId');
-		$this->TestModel->DeleteTestBlockKey = ClassRegistry::init('TestRooms.DeleteTestBlockKey');
+		$this->Block = ClassRegistry::init('Blocks.Block');
 	}
 
 /**
@@ -77,20 +76,14 @@ class DeleteRoomAssociationsBehaviorDeleteBlocksByRoomTest extends NetCommonsMod
  */
 	public function testDeleteBlocksByRoom($roomId) {
 		//事前チェック
-		$this->__assertTable('DeleteTestBlockId', 3, array('id', 'block_id'));
-		$this->__assertTable('DeleteTestBlockKey', 3, array('id', 'block_key'));
+		$this->__assertTable('Block', 3);
 
 		//テスト実施
 		$result = $this->TestModel->deleteBlocksByRoom($roomId);
 		$this->assertTrue($result);
 
 		//チェック
-			$this->__assertTable('DeleteTestBlockId', 1, array('id', 'block_id'), array(
-			array('DeleteTestBlockId' => array('id' => '2', 'block_id' => '2')),
-		));
-		$this->__assertTable('DeleteTestBlockKey', 1, array('id', 'block_key'), array(
-			array('DeleteTestBlockKey' => array('id' => '1', 'block_key' => 'block_1')),
-		));
+		$this->__assertTable('Block', 1);
 	}
 
 /**
@@ -98,20 +91,13 @@ class DeleteRoomAssociationsBehaviorDeleteBlocksByRoomTest extends NetCommonsMod
  *
  * @param string $model Model名
  * @param int $count データ件数
- * @param array $fields フィールド名
- * @param array $expected 期待値
  * @return void
  */
-	private function __assertTable($model, $count, $fields, $expected = null) {
-		$result = $this->TestModel->$model->find('all', array(
+	private function __assertTable($model, $count) {
+		$result = $this->$model->find('count', array(
 			'recursive' => -1,
-			'fields' => $fields,
 		));
-		$this->assertCount($count, $result);
-
-		if (isset($expected)) {
-			$this->assertEquals($expected, $result);
-		}
+		$this->assertEquals($count, $result);
 	}
 
 }
