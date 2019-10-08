@@ -10,6 +10,7 @@
  */
 
 App::uses('RoomsAppModel', 'Rooms.Model');
+App::uses('RoomsLibForeignConditionsParser', 'Rooms.Lib');
 
 /**
  * ルーム削除時に関連して削除するテーブル Model
@@ -18,36 +19,6 @@ App::uses('RoomsAppModel', 'Rooms.Model');
  * @package NetCommons\Rooms\Model
  */
 class RoomDeleteRelatedTable extends RoomsAppModel {
-
-/**
- * 削除
- *
- * @var array
- */
-	private $__defaultConditions = [
-		'rooms' => [
-			'id' => ['*.room_id'],
-		],
-		'blocks' => [
-			'id' => ['*.block_id'],
-			'key' => ['*.block_key'],
-		],
-		'pages' => [
-			'id' => ['*.page_id'],
-		],
-		'users' => [
-			'id' => [
-				'*.user_id',
-				'calendar_event_share_users.share_user',
-				'groups.created_user',
-				'reservation_event_share_users.share_user'
-			],
-		],
-		'frames' => [
-			'id' => ['*.frame_id'],
-			'key' => ['*.frame_key'],
-		],
-	];
 
 /**
  * ルームIDを基にルーム削除関連データを追加
@@ -76,11 +47,13 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 		try {
 			$table = $this->Room->table;
 			$this->__execInsertQuery(
-				$roomId, 'id', $roomId, $table, 'id', $this->__defaultConditions[$table]
+				$roomId, 'id', $roomId, $table, 'id',
+				RoomsLibForeignConditionsParser::getForeignCondition($table)
 			);
 
 			foreach ($targetTables as $table) {
-				foreach ($this->__defaultConditions[$table] as $field => $condition) {
+				$foreignConditions = RoomsLibForeignConditionsParser::getForeignCondition($table);
+				foreach ($foreignConditions as $field => $condition) {
 					$this->__execInsertQuery(
 						$roomId, 'room_id', $roomId, $table, $field, [$field => $condition]
 					);
@@ -114,7 +87,8 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 		try {
 			$table = $this->User->table;
 			$this->__execInsertQuery(
-				$roomId, 'id', $userId, $table, 'id', $this->__defaultConditions[$table]
+				$roomId, 'id', $userId, $table, 'id',
+				RoomsLibForeignConditionsParser::getForeignCondition($table)
 			);
 
 			//トランザクションCommit

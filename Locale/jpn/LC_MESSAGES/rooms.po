@@ -233,3 +233,18 @@ msgstr "%sに変更する"
 #: Rooms/View/Elements/Rooms/edit_form.ctp:64
 msgid "Last access datetime"
 msgstr "最終アクセス日時"
+
+#
+# 削除ルームに対する関連テーブル削除シェル
+#
+msgid "Delete room associations Shell"
+msgstr "削除ルームに対する関連テーブルのデータ削除"
+
+msgid "Process limit"
+msgstr "処理件数"
+
+msgid "Process room id"
+msgstr "処理するルームID"
+
+msgid "All records"
+msgstr "全レコード"
