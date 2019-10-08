@@ -80,9 +80,11 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 			);
 
 			foreach ($targetTables as $table) {
-				$this->__execInsertQuery(
-					$roomId, 'room_id', $roomId, $table, 'id', $this->__defaultConditions[$table]
-				);
+				foreach ($this->__defaultConditions[$table] as $field => $condition) {
+					$this->__execInsertQuery(
+						$roomId, 'room_id', $roomId, $table, $field, [$field => $condition]
+					);
+				}
 			}
 
 			//トランザクションCommit
