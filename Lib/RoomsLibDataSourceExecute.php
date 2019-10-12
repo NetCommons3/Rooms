@@ -9,6 +9,8 @@
  * @copyright Copyright 2014, NetCommons Project
  */
 
+App::uses('RoomsLibLog', 'Rooms.Lib');
+
 /**
  * ルーム削除時の関連テーブル削除処理に関するライブラリ
  *
@@ -32,13 +34,22 @@ class RoomsLibDataSourceExecute {
 	private $__Model;
 
 /**
+ * 実行シェル
+ *
+ * @var Shell
+ */
+	private $__Shell;
+
+/**
  * コンストラクタ
  *
  * @param Model $Model モデル(当モデルは、MySQLのModelであれば何でも良い)
+ * @param Shell|null $Shell 実行シェル
  * @return void
  */
-	public function __construct(Model $Model) {
+	public function __construct(Model $Model, $Shell = null) {
 		$this->__Model = $Model;
+		$this->__Shell = $Shell;
 		$this->__DataSource = $Model->getDataSource();
 		$this->__RoomsLibCache = new RoomsLibCache($Model);
 	}
@@ -71,7 +82,7 @@ class RoomsLibDataSourceExecute {
 					! in_array($tableName, $schemaTables)) {
 				continue;
 			}
-			$retTables[$tableName] = $this->__showDbTableColumns($realTableName);
+			$retTables[$tableName] = $this->showTableColumns($realTableName);
 		}
 
 		//キャッシュに登録
@@ -108,7 +119,10 @@ class RoomsLibDataSourceExecute {
  */
 	private function __getSchemeFileTablesByPlugin($plugin) {
 		$class = $plugin . 'Schema';
-		$filePath = App::pluginPath($plugin) . 'Config' . DS . 'Schema' . DS . 'schema.php';
+		if (! CakePlugin::loaded($plugin)) {
+			return false;
+		}
+		$filePath = CakePlugin::path($plugin) . 'Config' . DS . 'Schema' . DS . 'schema.php';
 		if (! file_exists($filePath)) {
 			return false;
 		}
@@ -150,11 +164,10 @@ class RoomsLibDataSourceExecute {
  *
  * @param string $tableName テーブル名
  * @param array $selectFieldNames SELECTのカラム名リスト
- * @param string $whereFieldName WHEREのカラム名
- * @param array $values 取得する値
+ * @param array $wheres WHERE条件リスト
  * @return array
  */
-	public function selectQuery($tableName, $selectFieldNames, $whereFieldName, $values) {
+	public function selectQuery($tableName, $selectFieldNames, $wheres) {
 		$tablePrefix = $this->__Model->tablePrefix;
 		$realTableName = $tablePrefix . $tableName;
 		$tableAlias = Inflector::classify($tableName);
@@ -168,7 +181,7 @@ class RoomsLibDataSourceExecute {
 			implode(', ', $fields),
 			$realTableName,
 			$tableAlias,
-			$this->__makeWhereSql($tableAlias, $whereFieldName, $values)
+			$this->__makeWhereSql($tableAlias, $wheres)
 		);
 
 		$queryResults = $this->__Model->query($sql);
@@ -179,11 +192,10 @@ class RoomsLibDataSourceExecute {
  * SELECT COUNT(*)のSQLを実行する
  *
  * @param string $tableName テーブル名
- * @param string $whereFieldName WHEREのカラム名
- * @param array $values 取得する値
+ * @param array $wheres WHERE条件リスト
  * @return array
  */
-	public function countQuery($tableName, $whereFieldName, $values) {
+	public function countQuery($tableName, $wheres) {
 		$tablePrefix = $this->__Model->tablePrefix;
 		$realTableName = $tablePrefix . $tableName;
 		$tableAlias = Inflector::classify($tableName);
@@ -192,7 +204,7 @@ class RoomsLibDataSourceExecute {
 			'SELECT COUNT(*) AS count_num FROM `%s` AS `%s` WHERE %s',
 			$realTableName,
 			$tableAlias,
-			$this->__makeWhereSql($tableAlias, $whereFieldName, $values)
+			$this->__makeWhereSql($tableAlias, $wheres)
 		);
 
 		$queryResults = $this->__Model->query($sql);
@@ -209,55 +221,65 @@ class RoomsLibDataSourceExecute {
  * DELETEのSQLを実行する
  *
  * @param string $tableName テーブル名
- * @param string $whereFieldName WHEREのカラム名
- * @param array $values 取得する値
+ * @param array $wheres WHERE条件リスト
  * @return array
  */
-	public function deleteQuery($tableName, $whereFieldName, $values) {
+	public function deleteQuery($tableName, $wheres) {
 		$tablePrefix = $this->__Model->tablePrefix;
 		$realTableName = $tablePrefix . $tableName;
-		$tableAlias = Inflector::classify($tableName);
 
 		$sql = sprintf(
 			'DELETE FROM `%s` WHERE %s',
 			$realTableName,
-			$this->__makeWhereSql($realTableName, $whereFieldName, $values)
+			$this->__makeWhereSql($realTableName, $wheres)
 		);
 
-\CakeLog::debug(__METHOD__ . '(' . __LINE__ . ') ' . var_export($sql, true));
+		RoomsLibLog::infoLog($this->__Shell, $sql, 2);
 
 		$queryResults = $this->__Model->query($sql);
+
+		RoomsLibLog::successLog(
+			$this->__Shell,
+			'--> AffectedRows = ' . $this->__Model->getAffectedRows(),
+			2
+		);
+
 		return $queryResults;
 	}
 
 /**
  * 外部フィードキーに対して、削除対象データを取得する
  *
- * @param string $tableName テーブル名
- * @param string $forienConditions 外部フィールドの条件(変換後)
+ * @param string $tableAlias テーブルのAlias名
+ * @param array $wheres WHERE条件リスト
  * @return array
  */
-	private function __makeWhereSql($tableAlias, $fieldName, $values) {
-		$whereField = $this->__Model->escapeField($fieldName, $tableAlias);
+	private function __makeWhereSql($tableAlias, $wheres) {
+		$whereConditions = [];
 
-		if (is_array($values)) {
-			$escapeValuesArr = array_map(function ($value) {
-				return $this->__DataSource->value($value, 'string');
-			}, $values);
-			$escapeValues = implode(', ', $escapeValuesArr);
-			$whereCondition = $whereField . ' IN (' . $escapeValues . ')';
-		} else {
-			$escapeValues = $this->__DataSource->value($values, 'string');
-			$whereCondition = $whereField . '=' . $escapeValues;
+		foreach ($wheres as $fieldName => $values) {
+			$whereField = $this->__Model->escapeField($fieldName, $tableAlias);
+
+			if (is_array($values)) {
+				$escapeValuesArr = array_map(function ($value) {
+					return $this->__DataSource->value($value, 'string');
+				}, $values);
+				$escapeValues = implode(', ', $escapeValuesArr);
+				$whereConditions[] = $whereField . ' IN (' . $escapeValues . ')';
+			} else {
+				$escapeValues = $this->__DataSource->value($values, 'string');
+				$whereConditions[] = $whereField . '=' . $escapeValues;
+			}
 		}
-		return $whereCondition;
+		return implode(' AND ', $whereConditions);
 	}
 
 /**
- * 外部フィードキーに対して、削除対象データを取得する
+ * クエリの結果をフラットの配列(一次配列、「.」で連結)にする
  *
  * @param string $tableName テーブル名
- * @param string $forienConditions 外部フィールドの条件(変換後)
+ * @param string $tableAlias テーブルのAlias名
+ * @param array $queryResults クエリの結果
  * @return array
  */
 	private function __flattenForDeleteTargetValues($tableName, $tableAlias, $queryResults) {
@@ -266,7 +288,7 @@ class RoomsLibDataSourceExecute {
 			return $retResults;
 		}
 
-		foreach ($queryResults as $result){
+		foreach ($queryResults as $result) {
 			foreach ($result[$tableAlias] as $field => $value) {
 				if (! isset($retResults[$tableName . '.' . $field])) {
 					$retResults[$tableName . '.' . $field] = [];

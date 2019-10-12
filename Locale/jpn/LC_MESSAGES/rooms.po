@@ -248,3 +248,6 @@ msgstr "処理するルームID"
 
 msgid "All records"
 msgstr "全レコード"
+
+msgid "Deleted."
+msgstr "削除しました。"

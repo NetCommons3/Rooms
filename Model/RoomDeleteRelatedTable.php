@@ -34,6 +34,10 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 			'Block' => 'Blocks.Block',
 		]);
 
+		if ($this->__existTableValue($this->Room->table, 'id', $roomId)) {
+			return;
+		}
+
 		$targetTables = [
 			//$this->Room->table,
 			$this->Page->table,
@@ -80,6 +84,9 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 		$this->loadModels([
 			'User' => 'Users.User',
 		]);
+		if ($this->__existTableValue($this->User->table, 'id', $userId)) {
+			return;
+		}
 
 		//トランザクションBegin
 		$this->begin();
@@ -98,6 +105,27 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 			//トランザクションRollback
 			$this->rollback($ex);
 		}
+	}
+
+/**
+ * 対象テーブルの値が存在するか否か
+ *
+ * @param string $tableName 対象テーブル名
+ * @param string $fieldName 対象カラム名
+ * @param string $value 対象の値
+ *
+ * @return bool
+ */
+	private function __existTableValue($tableName, $fieldName, $value) {
+		$findTableName = $this->tablePrefix . $this->table;
+		$result = $this->query(
+			"SELECT COUNT(*) count_num FROM {$findTableName} AS {$this->alias}" .
+				" WHERE {$this->alias}.delete_table_name = :tableName" .
+				" AND {$this->alias}.field_name = :fieldName" .
+				" AND {$this->alias}.value = :value",
+			['tableName' => $tableName, 'fieldName' => $fieldName, 'value' => $value]
+		);
+		return $result[0][0]['count_num'] > 0;
 	}
 
 /**
@@ -141,6 +169,55 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 
 		//登録処理
 		return $this->query($sql);
+	}
+
+/**
+ * 開始時間の更新
+ *
+ * @param int|string $id ID
+ * @return bool
+ */
+	public function updateStartTime($id) {
+		$this->__updateField($id, 'start_time', gmdate('Y-m-d H:i:s'));
+	}
+
+/**
+ * 終了日時の更新
+ *
+ * @param int|string $id ID
+ * @return bool
+ */
+	public function updateEndTime($id) {
+		$this->__updateField($id, 'end_time', gmdate('Y-m-d H:i:s'));
+	}
+
+/**
+ * 更新処理
+ *
+ * @param int|string $id ID
+ * @param string $name カラム名
+ * @param string $value 値
+ * @return bool|array See Model::save() False on failure or an array of model data on success.
+ * @see Model::save()
+ * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-savefield-string-fieldname-string-fieldvalue-validate-false
+ */
+	private function __updateField($id, $name, $value) {
+		//トランザクションBegin
+		$this->begin();
+
+		try {
+			$this->create(false);
+
+			$options = ['validate' => false, 'fieldList' => [$name]];
+			$this->save([$this->alias => [$this->primaryKey => $id, $name => $value]], $options);
+
+			//トランザクションCommit
+			$this->commit();
+
+		} catch (Exception $ex) {
+			//トランザクションRollback
+			$this->rollback($ex);
+		}
 	}
 
 }

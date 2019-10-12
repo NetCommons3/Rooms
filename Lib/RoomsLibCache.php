@@ -36,12 +36,14 @@ class RoomsLibCache {
 		$cacheName = 'delete_rooms_' . $Model->useDbConfig;
 		$isTest = ($Model->useDbConfig === 'test');
 		$this->__NetCommonsCache = new NetCommonsCache($cacheName, $isTest, 'netcommons_model');
+		$this->__NetCommonsCache->clear();
 	}
 
 /**
  * キャッシュに登録
  *
  * @param string $key キャッシュキー
+ * @param string $subKey キャッシュサブキー
  * @param array $value キャッシュに保存する値
  * @return array
  */
@@ -53,7 +55,7 @@ class RoomsLibCache {
  * カラム名に対するテーブルリストを取得する
  *
  * @param string $key キャッシュキー
- * @param string $subKey キャッシュサブキー
+ * @param string|null $subKey キャッシュサブキー
  * @return array
  */
 	public function readCache($key, $subKey = null) {

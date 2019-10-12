@@ -13,6 +13,7 @@ App::uses('RoomsAppModel', 'Rooms.Model');
 App::uses('Role', 'Roles.Model');
 App::uses('Space', 'Rooms.Model');
 App::uses('BlockSettingBehavior', 'Blocks.Model/Behavior');
+App::uses('RoomsLibCommandExec', 'Rooms.Lib');
 
 /**
  * Room Model
@@ -470,6 +471,9 @@ class Room extends RoomsAppModel {
 		if (! $this->deleteAll(array($this->alias . '.id' => $this->_childRoomIds), false)) {
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 		}
+
+		//コマンドライン実行
+		RoomsLibCommandExec::deleteRelatedRooms();
 	}
 
 /**
