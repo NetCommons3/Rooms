@@ -79,7 +79,7 @@ class RoomsLibDeleteRoomTables {
  */
 	private $__defIgnoreTables = [
 		'rooms', 'pages', 'blocks', 'frames', 'room_delete_related_tables',
-		'roles_rooms'
+		'roles_rooms', 'users'
 	];
 
 /**
@@ -100,7 +100,10 @@ class RoomsLibDeleteRoomTables {
  * @param Shell|null $Shell 実行シェル
  * @return void
  */
-	public function __construct(Model $Model, $Shell = null) {
+	public function __construct($Model = null, $Shell = null) {
+		if (! $Model) {
+			$Model = ClassRegistry::init('Rooms.RoomDeleteRelatedTable');
+		}
 		$this->__Model = $Model;
 		$this->__Shell = $Shell;
 		$this->__DataSource = $Model->getDataSource();
@@ -304,7 +307,7 @@ class RoomsLibDeleteRoomTables {
 		);
 
 		if ($tableName === 'users') {
-			$this->deleteAvatar($tableName, 'avatar', $value);
+			$this->deleteAttachment($tableName, 'avatar', $value);
 		}
 	}
 
@@ -383,24 +386,24 @@ class RoomsLibDeleteRoomTables {
 	}
 
 /**
- * アバターファイル削除処理を実行する
+ * アップロードファイル削除処理を実行する
  *
  * アップロードは、物理ファイルも消さないといけないので別処理とする。
  *
  * @param string $tableName テーブル名
  * @param string $fieldName カラム名
- * @param int|string $userId 会員ID
+ * @param int|string $contentKey コンテンツキー
  * @return array
  */
-	public function deleteAvatar($tableName, $fieldName, $userId) {
+	public function deleteAttachment($tableName, $fieldName, $contentKey) {
 		$results = $this->__RoomsLibDataSourceExecute->selectQuery(
 			'upload_files',
 			['id'],
-			['plugin_key' => $tableName, 'field_name' => $fieldName, 'content_key' => $userId]
+			['plugin_key' => $tableName, 'field_name' => $fieldName, 'content_key' => $contentKey]
 		);
 
-		if (! empty($results[$tableName . '.id'])) {
-			$this->deleteUploadTables($results[$tableName . '.id']);
+		if (! empty($results['upload_files.id'])) {
+			$this->deleteUploadTables($results['upload_files.id']);
 		}
 	}
 
@@ -411,10 +414,22 @@ class RoomsLibDeleteRoomTables {
  * @return array
  */
 	public function deleteUploadTables($fileIds) {
-		foreach ($fileIds as $fileId) {
-			RoomsLibLog::infoLog($this->__Shell, 'Delete Upload = ' . $fileId, 2);
-			$this->__UploadFile->deleteUploadFile($fileId);
-			RoomsLibLog::successLog($this->__Shell, '--> Success', 2);
+		try {
+			//トランザクションBegin
+			$this->__UploadFile->begin();
+
+			foreach ($fileIds as $fileId) {
+				RoomsLibLog::infoLog($this->__Shell, 'Delete Upload = ' . $fileId, 2);
+				$this->__UploadFile->deleteUploadFile($fileId);
+				RoomsLibLog::successLog($this->__Shell, '--> Success', 2);
+			}
+
+			//トランザクションCommit
+			$this->__UploadFile->commit();
+
+		} catch (Exception $ex) {
+			//トランザクションRollback
+			$this->__UploadFile->rollback($ex);
 		}
 	}
 

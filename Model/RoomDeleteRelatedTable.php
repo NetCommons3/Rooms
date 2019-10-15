@@ -84,7 +84,29 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 		$this->loadModels([
 			'User' => 'Users.User',
 		]);
-		if ($this->__existTableValue($this->User->table, 'id', $userId)) {
+
+		$table = $this->User->table;
+		$this->insert(
+			$roomId, $table, 'id', $userId,
+			RoomsLibForeignConditionsParser::getForeignCondition($table)
+		);
+	}
+
+/**
+ * ルーム削除関連データを追加
+ *
+ * insertByRoomId()やinsertUser()に含まれないものを追加する時に使用する
+ *
+ * @param int|string $roomId ルームID
+ * @param string $tableName テーブル名
+ * @param string $fieldName カラム名
+ * @param string|int $value 値
+ * @param array $foreignConditions 外部キーリスト
+ * @return void
+ */
+	public function insert($roomId, $tableName, $fieldName, $value, $foreignConditions) {
+		//既に登録されているかチェック
+		if ($this->__existTableValue($tableName, $fieldName, $value)) {
 			return;
 		}
 
@@ -92,10 +114,8 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 		$this->begin();
 
 		try {
-			$table = $this->User->table;
 			$this->__execInsertQuery(
-				$roomId, 'id', $userId, $table, 'id',
-				RoomsLibForeignConditionsParser::getForeignCondition($table)
+				$roomId, $fieldName, $value, $tableName, $fieldName, $foreignConditions
 			);
 
 			//トランザクションCommit
@@ -154,7 +174,8 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 			'delete_table_name' => $db->value($targetTableName, 'string'),
 			'field_name' => $db->value($targetFieldName, 'string'),
 			'value' => $this->escapeField($targetFieldName, $targetAlias),
-			'foreign_field_conditions' => $db->value(json_encode($foreignConditions), 'string'),
+			'foreign_field_conditions' =>
+					$db->value(RoomsLibForeignConditionsParser::convertDbValue($foreignConditions), 'string'),
 			'created' => $db->value(date('Y-m-d H:i:s'), 'string'),
 			'created_user' => $db->value($loginUserId, 'string'),
 			'modified' => $db->value(date('Y-m-d H:i:s'), 'string'),
@@ -165,7 +186,8 @@ class RoomDeleteRelatedTable extends RoomsAppModel {
 				' (' . implode(', ', array_keys($values)) . ')' .
 				' SELECT ' . implode(', ', $values) .
 				' FROM ' . $fullTargetTableName . ' AS ' . $targetAlias .
-				' WHERE ' . $this->escapeField($findField, $targetAlias) . ' = ' . $findValue;
+				' WHERE ' . $this->escapeField($findField, $targetAlias) .
+							' = ' . $db->value($findValue, 'string');
 
 		//登録処理
 		return $this->query($sql);
