@@ -196,7 +196,7 @@ class RoomsRolesFormHelper extends AppHelper {
 					' data-content="' . h($description) . '"' .
 					' data-trigger="focus">';
 
-		$html .= '<span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>';
+		$html .= '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>';
 		$html .= '</a>';
 		$html .= '<script type="text/javascript">' .
 			'$(function () { $(\'[data-toggle="popover"]\').popover({html: true}) });</script>';
