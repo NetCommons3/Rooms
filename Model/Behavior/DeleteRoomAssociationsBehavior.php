@@ -64,18 +64,23 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 		]);
 
 		//外部キーがpage_idのデータを削除
-		$pageIds = $model->Page->find('list', array(
+		$page = $model->Page->find('first', array(
 			'recursive' => -1,
 			//'fields' => array('id', 'key'),
 			'conditions' => array(
 				$model->Page->alias . '.room_id' => $roomId,
+				'root_id = parent_id'
 			),
 		));
-		$pageIds = array_keys($pageIds);
+		if (! $page) {
+			return true; // すでに対象のページがないということなので
+		}
 
-		//Tree構成の関係で、ページの削除はdeleteAllでやる
-		if (!$model->Page->deleteAll(array($model->Page->alias . '.id' => $pageIds), false)) {
-			CakeLog::error('[room deleting] Page->deleteAll ' . implode(', ', $pageIds));
+		$pageId = $page['Page']['id'];
+
+		//Tree構成の関係で、ページの削除はdeleteで親だけを消して、あとはCallbackに任せる
+		if (!$model->Page->delete(array($model->Page->alias . '.id' => $pageId), false)) {
+			CakeLog::error('[room deleting] Page->delete ' . $pageId);
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 		}
 
