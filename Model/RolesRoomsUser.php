@@ -555,7 +555,9 @@ class RolesRoomsUser extends RoomsAppModel {
 			}
 
 			//トランザクションCommit
+			$this->invalidateCDN = false;
 			$this->commit();
+			$this->invalidateCDN = true;
 
 		} catch (Exception $ex) {
 			//トランザクションRollback
