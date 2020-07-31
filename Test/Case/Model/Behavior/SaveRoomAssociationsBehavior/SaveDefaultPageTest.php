@@ -113,7 +113,7 @@ class SaveRoomAssociationsBehaviorSaveDefaultPageTest extends NetCommonsModelTes
  * @return void
  */
 	public function testRoomOnExceptionError($data) {
-		$this->_mockForReturnTrue('TestModel', 'Pages.Page', 'savePage');
+		$this->_mockForReturn('TestModel', 'Pages.Page', 'savePage', ['Page' => ['id' => '5']]);
 		$this->_mockForReturnFalse('TestModel', 'Rooms.Room', 'updateAll');
 
 		//テスト実施
