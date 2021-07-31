@@ -1,11 +1,6 @@
 Rooms
 =====
 
-Rooms for NetComomns3
-
-[![Build Status](https://api.travis-ci.org/NetCommons3/Rooms.png?branch=master)](https://travis-ci.org/NetCommons3/Rooms)
-[![Coverage Status](https://coveralls.io/repos/NetCommons3/Rooms/badge.png?branch=master)](https://coveralls.io/r/NetCommons3/Rooms?branch=master)
-
-| dependencies | status |
-| ------------ | ------ |
-| composer.json | [![Dependency Status](https://www.versioneye.com/user/projects/53f823dde09da395fc0004e2/badge.png)](https://www.versioneye.com/user/projects/53f823dde09da395fc0004e2) |
+[![Tests Status](https://github.com/NetCommons3/Rooms/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/NetCommons3/Rooms/actions/workflows/tests.yml)
+[![Coverage Status](https://coveralls.io/repos/NetCommons3/Rooms/badge.svg?branch=master)](https://coveralls.io/r/NetCommons3/Rooms?branch=master)
+[![Stable Version](https://img.shields.io/packagist/v/netcommons/rooms.svg?label=stable)](https://packagist.org/packages/netcommons/rooms)
