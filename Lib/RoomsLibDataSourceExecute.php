@@ -74,7 +74,12 @@ class RoomsLibDataSourceExecute {
 
 		$retTables = [];
 		foreach ($tables as $table) {
-			$realTableName = array_shift($table['TABLE_NAMES']);
+			$realTableName = null;
+			if (array_key_exists('TABLE_NAMES', $table)) {
+				$realTableName = array_shift($table['TABLE_NAMES']);
+			} elseif (array_key_exists('TABLES', $table)) {
+				$realTableName = array_shift($table['TABLES']);
+			}
 			$realPrefix = substr($realTableName, 0, strlen($tablePrefix));
 			$tableName = substr($realTableName, strlen($tablePrefix));
 
@@ -149,7 +154,7 @@ class RoomsLibDataSourceExecute {
  * @return array
  */
 	public function showTableColumns($realTableName) {
-		$columns = $this->__Model->query('SHOW COLUMNS FROM ' . $realTableName);
+		$columns = $this->__Model->query('SHOW COLUMNS FROM `' . $realTableName . '`');
 
 		$retColumns = [];
 		foreach ($columns as $column) {
