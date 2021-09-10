@@ -73,7 +73,7 @@ class RolesRoomsUserGetRolesRoomsUsersTest extends NetCommonsGetTest {
 		);
 
 		//テスト実施
-		$result = $this->$model->$methodName($conditions);
+		$result = $this->$model->$methodName($conditions, ['order' => ['Room.id' => 'asc']]);
 
 		//チェック
 		$this->assertCount(3, $result);

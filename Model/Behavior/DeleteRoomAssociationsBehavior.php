@@ -174,8 +174,13 @@ class DeleteRoomAssociationsBehavior extends ModelBehavior {
 
 		$tables = $model->query("SHOW TABLES LIKE '{$prefix}%'");
 		foreach ($tables as $table) {
-			$tableName = array_shift($table['TABLE_NAMES']);
-			$columns = $model->query('SHOW COLUMNS FROM ' . $tableName);
+			$tableName = null;
+			if (array_key_exists('TABLE_NAMES', $table)) {
+				$tableName = array_shift($table['TABLE_NAMES']);
+			} elseif (array_key_exists('TABLES', $table)) {
+				$tableName = array_shift($table['TABLES']);
+			}
+			$columns = $model->query('SHOW COLUMNS FROM `' . $tableName . '`');
 			if (! Hash::check($columns, '{n}.COLUMNS[Field=' . $field . ']')) {
 				continue;
 			}
