@@ -90,11 +90,11 @@ class DeleteRelatedRoomsTask extends AppShell {
 					" LIMIT " . self::PROCESS_COUNT
 			);
 
-			//トランザクションBegin
-			$this->RoomDeleteRelatedTable->begin();
-
 			try {
 				foreach ($records as $record) {
+					//トランザクションBegin
+					$this->RoomDeleteRelatedTable->begin();
+
 					$recordId = $record['RoomDeleteRelatedTable']['id'];
 					$this->RoomDeleteRelatedTable->updateStartTime($recordId);
 
@@ -108,11 +108,11 @@ class DeleteRelatedRoomsTask extends AppShell {
 					$this->RoomDeleteRelatedTable->updateEndTime($recordId);
 
 					$procCount++;
-				}
 
-				//トランザクションCommit
-				$this->RoomDeleteRelatedTable->commit();
-				//$this->RoomDeleteRelatedTable->rollback();
+					//トランザクションCommit
+					$this->RoomDeleteRelatedTable->commit();
+					//$this->RoomDeleteRelatedTable->rollback();
+				}
 
 			} catch (Exception $ex) {
 				//トランザクションRollback
