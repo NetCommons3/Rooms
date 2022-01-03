@@ -644,14 +644,14 @@ class Room extends RoomsAppModel {
 				throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 			}
 
+			//トランザクションCommit
+			$this->commit();
+
 			//コマンドライン実行
 			if ($execDelCommand) {
 				//会員の一括削除の場合、毎回実行しないようにするため。
 				RoomsLibCommandExec::deleteRelatedRooms();
 			}
-
-			//トランザクションCommit
-			$this->commit();
 
 		} catch (Exception $ex) {
 			//トランザクションRollback
