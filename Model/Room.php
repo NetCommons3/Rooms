@@ -471,9 +471,6 @@ class Room extends RoomsAppModel {
 		if (! $this->deleteAll(array($this->alias . '.id' => $this->_childRoomIds), false)) {
 			throw new InternalErrorException(__d('net_commons', 'Internal Server Error'));
 		}
-
-		//コマンドライン実行
-		RoomsLibCommandExec::deleteRelatedRooms();
 	}
 
 /**
@@ -628,10 +625,12 @@ class Room extends RoomsAppModel {
  * ルームの削除処理
  *
  * @param array $data received post data
+ * @param bool $execDelCommand 削除コマンドを実行するかどうか
  * @return bool True on success, false on validation errors
  * @throws InternalErrorException
+ * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
  */
-	public function deleteRoom($data) {
+	public function deleteRoom($data, $execDelCommand = true) {
 		$this->loadModels([
 			'RoomsLanguage' => 'Rooms.RoomsLanguage',
 		]);
@@ -647,6 +646,12 @@ class Room extends RoomsAppModel {
 
 			//トランザクションCommit
 			$this->commit();
+
+			//コマンドライン実行
+			if ($execDelCommand) {
+				//会員の一括削除の場合、毎回実行しないようにするため。
+				RoomsLibCommandExec::deleteRelatedRooms();
+			}
 
 		} catch (Exception $ex) {
 			//トランザクションRollback
