@@ -208,7 +208,7 @@ class RoomsRolesFormComponent extends Component {
 			'displayFields' => self::$displaFields,
 			'extra' => array(
 				'selectedUsers' => $controller->Session->read('RoomsRolesUsers'),
-				'plugin' => $seached ? $controller->params['plugin'] : '',
+				'plugin' => $controller->params['plugin'] ?? '',
 				'search' => $seached
 			)
 		));
