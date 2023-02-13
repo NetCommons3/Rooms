@@ -165,6 +165,11 @@ class RoomAddController extends RoomsAppController {
 			//他言語が入力されていない場合、Currentの言語データをセット
 			$this->SwitchLanguage->setM17nRequestValue();
 
+			$defaultParticipation = $this->request->data['Room']['default_participation'] ?? null;
+			if ($this->Session->read('RoomAdd.Room.default_participation') !== $defaultParticipation) {
+				$this->Session->delete('RoomsRolesUsers');
+			}
+
 			//登録処理
 			$this->request->data['Room']['in_draft'] = true;
 			$room = $this->Room->saveRoom($this->request->data);
